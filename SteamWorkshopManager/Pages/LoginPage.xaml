@@ -1,0 +1,28 @@
+﻿<Page
+    x:Class="SteamWorkshopManager.Pages.LoginPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SteamWorkshopManager.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <WebView2 x:Name="LoginWebView" Grid.Row="1" Grid.ColumnSpan="2"
+                  CoreWebView2Initialized="LoginWebView_OnCoreWebView2Initialized"
+                  NavigationStarting="LoginWebView_OnNavigationStarting"
+                  Source="https://steamcommunity.com/login/home/?l=schinese&amp;goto=%2Fid%2F123%2Fmyworkshopfiles%3Fbrowsefilter%3Dmysubscriptions%26sortmethod%3Dsubscriptiondate%26section%3Ditems%26appid%3D255710%26p%3D1%26numperpage%3D10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+    </Grid>
+</Page>

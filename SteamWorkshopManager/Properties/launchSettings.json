@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "SteamWorkshopManager (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "SteamWorkshopManager (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

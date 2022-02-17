@@ -1,0 +1,75 @@
+﻿<Page
+    x:Class="SteamWorkshopManager.Pages.HomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SteamWorkshopManager.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:core="using:SteamWorkshopManager.Core"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:ui="using:SteamWorkshopManager.Util.UI"
+    mc:Ignorable="d"
+    Loaded="HomePage_OnLoaded"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <StackPanel>
+        <TextBlock x:Name="TextBlock"></TextBlock>
+        <Button Content="Refresh Items" Click="RefreshItems_OnClick"></Button>
+        <Button Content="Refresh Login" Click="RefreshLogin_OnClick"></Button>
+        <Button Content="Logout" Click="LogoutButton_OnClick"></Button>
+        <controls:AdaptiveGridView DesiredWidth="340" ItemHeight="160" x:Name="WorkshopItemView" ItemsSource="{x:Bind WorkshopItems, Mode=OneWay}">
+            <GridView.ItemTemplate>
+                <DataTemplate x:DataType="core:WorkshopItem">
+                    <controls:DockPanel Margin="5">
+                        <controls:DockPanel.Background>
+                            <ImageBrush
+                                 Opacity="0.6"
+                                Stretch="UniformToFill"
+                                ImageSource="{x:Bind ImageUrl, Mode=OneWay}" />
+                        </controls:DockPanel.Background>
+                        <Border>
+                            <Border.Background>
+                                <AcrylicBrush TintColor="Black" TintOpacity="0.5" TintLuminosityOpacity="0.5" Opacity="0.5"></AcrylicBrush>
+                            </Border.Background>
+                            <controls:DockPanel>
+                                <StackPanel
+                                    controls:DockPanel.Dock="Top"
+                                    Spacing="10"
+                                    Margin="20"
+                                    Height="20"
+                                    HorizontalAlignment="Right"
+                                    Orientation="Horizontal">
+                                    <ContentPresenter
+                                        Width="20"
+                                        HorizontalAlignment="Right"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="{ui:FontIcon Glyph=SubscriptionAddED0E}">
+                                    </ContentPresenter>
+                                    <ContentPresenter
+                                        Width="20"
+                                        HorizontalAlignment="Right"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="{ui:FontIcon Glyph=HeartEB51, FontSize=18}">
+                                    </ContentPresenter>
+                                </StackPanel>
+                                
+                                <StackPanel
+                                    Spacing="5"
+                                    VerticalAlignment="Bottom"
+                                    controls:DockPanel.Dock="Bottom"
+                                    Margin="15, 0, 0, 5">
+                                    <TextBlock Text="{x:Bind Name}" Foreground="White"></TextBlock>
+                                    <TextBlock Text="{x:Bind Id}" FontWeight="Light" Foreground="White"></TextBlock>
+                                    <RatingControl HorizontalAlignment="Left"></RatingControl>
+                                </StackPanel>
+                            </controls:DockPanel>
+                        </Border>
+                        
+                    </controls:DockPanel>
+                </DataTemplate>
+            </GridView.ItemTemplate>
+        </controls:AdaptiveGridView>
+    </StackPanel>
+</Page>
