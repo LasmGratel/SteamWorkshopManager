@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using LiteDB;
 
 namespace SteamWorkshopManager.Core;
 
@@ -11,15 +7,19 @@ namespace SteamWorkshopManager.Core;
 /// </summary>
 public partial record WorkshopItem
 {
+    [BsonId]
     public long Id { get; set; }
 
     public string ImageUrl { get; set; }
 
     public string Name { get; set; }
 
-    public string App { get; set; }
+    public long AppId { get; set; }
 
-    public DateTime SubscribedDate { get; set; }
+    public DateTime? SubscribedDate { get; set; }
 
-    public DateTime LastUpdatedDate { get; set; }
+    public DateTime? LastUpdatedDate { get; set; }
+
+    [BsonIgnore]
+    public string Url => $"https://steamcommunity.com/workshop/filedetails/?id={Id}";
 }

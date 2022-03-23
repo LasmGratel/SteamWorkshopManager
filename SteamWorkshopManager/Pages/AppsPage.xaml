@@ -1,0 +1,96 @@
+﻿<Page
+    x:Class="SteamWorkshopManager.Pages.AppsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:SteamWorkshopManager.Pages"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:core="using:SteamWorkshopManager.Core" 
+    xmlns:ui="using:SteamWorkshopManager.Util.UI"
+    mc:Ignorable="d"
+    Loaded="AppsPage_OnLoaded"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <controls:DockPanel>
+        <CommandBar controls:DockPanel.Dock="Top" DefaultLabelPosition="Right" VerticalAlignment="Center" VerticalContentAlignment="Center">
+            <CommandBar.Content>
+                <AutoSuggestBox
+                    x:Name="AutoSuggestBox"
+                    GotFocus="AutoSuggestBox_GotFocus"
+                    LostFocus="AutoSuggestBox_LostFocus"
+                    ItemsSource="{x:Bind FilteredApps, Mode=OneWay}"
+                    SuggestionChosen="AutoSuggestBox_OnSuggestionChosen"
+                    TextChanged="AutoSuggestBox_OnTextChanged"
+                    Margin="20, 0, 0, 0"
+                    Width="250"
+                    PlaceholderText="Search a game..."></AutoSuggestBox>
+            </CommandBar.Content>
+            <CommandBar.PrimaryCommands>
+                <AppBarButton Icon="{ui:FontIcon Glyph=RefreshE72C}" HorizontalAlignment="Left" Label="Refresh Apps" Tapped="RefreshApps_Tapped"></AppBarButton>
+            </CommandBar.PrimaryCommands>
+        </CommandBar>
+        <controls:AdaptiveGridView
+            DesiredWidth="340"
+            ItemHeight="160"
+            Margin="20, 0, 0, 0"
+            x:Name="WorkshopItemView"
+            ItemsSource="{x:Bind AppsCollectionView, Mode=OneWay}"
+            ScrollViewer.VerticalScrollBarVisibility="Visible"
+            ScrollViewer.VerticalScrollMode="Enabled"
+            ScrollViewer.HorizontalScrollMode="Disabled"
+        >
+            <controls:AdaptiveGridView.ItemTemplate>
+                <DataTemplate x:DataType="core:Workshop">
+                    <controls:DockPanel Margin="5"
+                                        DataContext="{x:Bind AppId, Mode=OneWay}"
+                                        Tapped="App_OnTapped"
+                                        >
+                        <controls:DockPanel.Background>
+                            <ImageBrush
+                                Opacity="0.6"
+                                Stretch="UniformToFill"
+                                ImageSource="{x:Bind ImageUrl, Mode=OneWay}" />
+                        </controls:DockPanel.Background>
+                        <Border>
+                            <Border.Background>
+                                <AcrylicBrush TintColor="Black" TintOpacity="0.5" TintLuminosityOpacity="0.5" Opacity="0.5"></AcrylicBrush>
+                            </Border.Background>
+                            <controls:DockPanel>
+                                <StackPanel
+                                    controls:DockPanel.Dock="Top"
+                                    Spacing="10"
+                                    Margin="0, 20, 20, 20"
+                                    Height="20"
+                                    HorizontalAlignment="Right"
+                                    Orientation="Horizontal">
+                                    <ContentPresenter
+                                        Width="20"
+                                        HorizontalAlignment="Right"
+                                        HorizontalContentAlignment="Center"
+                                        VerticalContentAlignment="Center"
+                                        Content="{ui:FontIcon Glyph=HeartEB51, FontSize=18}">
+                                    </ContentPresenter>
+                                </StackPanel>
+
+                                <StackPanel
+                                    Spacing="5"
+                                    VerticalAlignment="Bottom"
+                                    controls:DockPanel.Dock="Bottom"
+                                    Margin="15, 0, 0, 5">
+                                    <TextBlock Text="{x:Bind Name}" FontWeight="Bold" Foreground="White"></TextBlock>
+                                    <controls:DockPanel>
+                                        <TextBlock Text="{x:Bind AppId}" FontWeight="Light" Foreground="White" HorizontalAlignment="Left" controls:DockPanel.Dock="Left"></TextBlock>
+                                        <HyperlinkButton Content="Open in Browser" NavigateUri="{x:Bind Url}" HorizontalAlignment="Right" controls:DockPanel.Dock="Right"></HyperlinkButton>
+                                    </controls:DockPanel>
+                                </StackPanel>
+                            </controls:DockPanel>
+                        </Border>
+
+                    </controls:DockPanel>
+                </DataTemplate>
+            </controls:AdaptiveGridView.ItemTemplate>
+        </controls:AdaptiveGridView>
+    </controls:DockPanel>
+
+</Page>

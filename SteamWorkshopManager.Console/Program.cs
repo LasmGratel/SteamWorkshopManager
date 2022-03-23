@@ -13,12 +13,9 @@ public class Program
             "https://steamcommunity.com/id/",
             new HttpClientHandler
             {
-                //Proxy = new WebProxy("http://127.0.0.1:1080"),
+                Proxy = new WebProxy("http://127.0.0.1:8118"),
                 UseCookies = false
             });
-        await foreach (var item in client.GetAllSubscribedItems(255710))
-        {
-            System.Console.WriteLine(item);
-        }
+        
     }
 }

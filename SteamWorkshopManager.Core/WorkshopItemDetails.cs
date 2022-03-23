@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SteamWorkshopManager.Core;
+﻿namespace SteamWorkshopManager.Core;
 
 /// <summary>
 /// Detailed information about workshop item, can only be fetched from workshop/filedetails/?id
 /// </summary>
-public record WorkshopItemDetails
+public record WorkshopItemDetails : WorkshopItem
 {
-    public long Id { get; set; }
 
     public string? Description { get; set; }
 
@@ -32,6 +25,8 @@ public record WorkshopItemDetails
     public long Subscribers { get; set; }
 
     public long Favorites { get; set; }
+
+    public int Stars { get; set; }
 
     /// <summary>
     /// Collections that include this item
