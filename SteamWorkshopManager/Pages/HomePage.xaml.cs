@@ -29,15 +29,15 @@ public sealed partial class HomePage : Page
     private void HomePage_OnLoaded(object sender, RoutedEventArgs e)
     {
         AppContext.Client = new SteamWorkshopClient(
-            AppContext.SessionContainer.Values["Cookie"].ToString(),
-            AppContext.SessionContainer.Values["UserLink"].ToString(),
+            AppContext.SessionContainer.Values["Cookie"]?.ToString(),
+            AppContext.SessionContainer.Values["UserLink"]?.ToString(),
             new HttpClientHandler
             {
-                Proxy = new WebProxy("http://127.0.0.1:1081"),
+                Proxy = new WebProxy("http://127.0.0.1:8118"),
                 UseCookies = false
             });
 
-        _ = WorkshopItemGrid.ViewModel.ResetEngineAndFillAsync(new SearchEngine(AppContext.Client));
+        _ = WorkshopItemGrid.ViewModel.ResetEngineAndFillAsync(new SearchEngine(AppContext.Client, null, 281990));
     }
 
     private void RefreshLogin_OnClick(object sender, RoutedEventArgs e)

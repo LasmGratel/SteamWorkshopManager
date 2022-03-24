@@ -9,22 +9,20 @@ public class SteamWorkshopClient
 {
     private string Cookie { get; }
 
-    private string UserId { get; }
-
     private string SessionId { get; }
 
     private string UserProfileUrl { get; set; }
 
     private readonly HttpClient _client;
 
-    public SteamWorkshopClient(string cookie, string userProfileUrl, HttpClientHandler? handler = null)
+    public SteamWorkshopClient(string? cookie, string? userProfileUrl, HttpClientHandler? handler = null)
     {
         const string sidRegex = "sessionid=(\\w+)";
         var values = Regex.Match(cookie, sidRegex).Groups.Values;
         SessionId = values.Count() > 1 ? Regex.Match(cookie, sidRegex).Groups.Values.Skip(1).First().Value : "";
 
-        Cookie = cookie;
-        UserProfileUrl = userProfileUrl;
+        Cookie = cookie ?? "";
+        UserProfileUrl = userProfileUrl ?? "";
 
         handler ??= new HttpClientHandler();
         handler.UseCookies = false;
@@ -47,7 +45,7 @@ public class SteamWorkshopClient
         var message = new HttpRequestMessage(HttpMethod.Get, url);
 
         message.Headers.TryAddWithoutValidation("Cookie", Cookie);
-        return await _client.SendAsync(message);
+        return await _client.SendAsync(message).ConfigureAwait(false);
     }
 
     public async Task<string> GetBody(string url)

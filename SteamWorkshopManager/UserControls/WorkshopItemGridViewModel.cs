@@ -11,22 +11,23 @@ namespace SteamWorkshopManager.UserControls;
 
 public partial class WorkshopItemGridViewModel : ObservableObject, IDisposable, IWorkshopItemVisualizer
 {
-    private WorkshopItemVisualizationController _controller;
+    private readonly WorkshopItemVisualizationController _controller;
 
     [ObservableProperty]
     private bool _hasNoItems;
 
-    private ObservableCollection<WorkshopItemViewModel> _viewModels = new();
+    private ObservableCollection<WorkshopItemViewModel> _viewModels;
 
     public void DisposeCurrent()
     {
-        _controller?.FetchEngine?.Cancel();
+        _controller.FetchEngine?.Cancel();
         foreach (var model in _viewModels)
         {
             model.Dispose();
         }
-        _viewModels.Clear();
+
         ItemsView.Clear();
+        _viewModels.Clear();
     }
 
     public ObservableCollection<WorkshopItemViewModel> ViewModels
@@ -43,6 +44,7 @@ public partial class WorkshopItemGridViewModel : ObservableObject, IDisposable, 
 
     public WorkshopItemGridViewModel()
     {
+        _viewModels = new ObservableCollection<WorkshopItemViewModel>();
         _controller = new WorkshopItemVisualizationController(this);
         ItemsView = new AdvancedCollectionView(ViewModels);
     }

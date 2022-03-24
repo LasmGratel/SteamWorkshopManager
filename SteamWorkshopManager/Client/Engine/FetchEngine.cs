@@ -16,7 +16,7 @@ public abstract class FetchEngine<T> : IAsyncEnumerable<T>
 
     public SteamWorkshopClient Client { get; }
 
-    public FetchEngine(SteamWorkshopClient client, EngineHandle? engineHandle = null)
+    public FetchEngine(SteamWorkshopClient client, EngineHandle? engineHandle)
     {
         Client = client;
         EngineHandle = engineHandle ?? new EngineHandle(Guid.NewGuid());
@@ -24,7 +24,7 @@ public abstract class FetchEngine<T> : IAsyncEnumerable<T>
 
 
     public abstract IAsyncEnumerator<T> GetAsyncEnumerator(
-        CancellationToken cancellationToken = new CancellationToken());
+        CancellationToken cancellationToken = new());
 
     public void Cancel()
     {

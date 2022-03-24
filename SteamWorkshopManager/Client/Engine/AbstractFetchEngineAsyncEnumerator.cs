@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 using SteamWorkshopManager.Core;
 
 namespace SteamWorkshopManager.Client.Engine;
 
-public abstract class AbstractFetchEngineAsyncEnumerator<TEntity, TFetchEngine> : IAsyncEnumerator<TEntity?>
+public abstract class AbstractFetchEngineAsyncEnumerator<TEntity, TFetchEngine> : IAsyncEnumerator<TEntity>
     where TEntity : class?
     where TFetchEngine : FetchEngine<TEntity>
 {
@@ -44,5 +45,20 @@ public abstract class AbstractFetchEngineAsyncEnumerator<TEntity, TFetchEngine> 
     {
         GC.SuppressFinalize(this);
         return default;
+    }
+
+    public async Task<Result<string>> GetResponseAsync(string url)
+    {
+        try
+        {
+            var response = await Client.SendRequest(url).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+                return Result<string>.OfFailure(new HttpRequestException("HTTP " + response.StatusCode));
+            return Result<string>.OfSuccess(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+        }
+        catch (HttpRequestException e)
+        {
+            return Result<string>.OfFailure(e);
+        }
     }
 }

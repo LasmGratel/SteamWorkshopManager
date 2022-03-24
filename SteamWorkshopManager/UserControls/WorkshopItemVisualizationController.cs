@@ -39,7 +39,7 @@ public class WorkshopItemVisualizationController
     public Task<bool> ResetAndFillAsync(FetchEngine<WorkshopItem?>? newEngine, int? itemLimit = null)
     {
         FetchEngine?.EngineHandle.Cancel();
-        FetchEngine = newEngine;
+        FetchEngine = newEngine; 
         _visualizer.DisposeCurrent();
         return FillAsync(itemLimit);
     }
