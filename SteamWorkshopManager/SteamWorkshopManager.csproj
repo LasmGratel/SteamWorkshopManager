@@ -20,6 +20,7 @@
     <None Remove="Pages\LoginPage.xaml" />
     <None Remove="Pages\MainPage.xaml" />
     <None Remove="Pages\SettingsPage.xaml" />
+    <None Remove="Pages\WorkshopItemPage.xaml" />
     <None Remove="RichTextBlockHtml2Xaml.xslt" />
     <None Remove="UserControls\WorkshopItemGrid.xaml" />
   </ItemGroup>
@@ -44,12 +45,15 @@
     <PackageReference Include="CommunityToolkit.WinUI.UI" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Animations" Version="7.1.2" />
     <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
+    <PackageReference Include="DnsClient" Version="1.6.0" />
+    <PackageReference Include="IdentityModel.OidcClient" Version="5.0.0" />
     <PackageReference Include="LiteDB" Version="5.0.11" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Toolkit" Version="7.1.2" />
     <PackageReference Include="Microsoft.Toolkit.Mvvm" Version="7.1.2" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.0" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.1" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.194" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="SuffixTreeSharp" Version="1.0.0" />
@@ -64,6 +68,12 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SteamWorkshopManager.Core\SteamWorkshopManager.Core.csproj" />
+    <ProjectReference Include="..\Titanium-Web-Proxy\src\Titanium.Web.Proxy\Titanium.Web.Proxy.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Pages\WorkshopItemPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Pages\AppsPage.xaml">

@@ -22,7 +22,7 @@
         <WebView2 x:Name="LoginWebView" Grid.Row="1" Grid.ColumnSpan="2"
                   CoreWebView2Initialized="LoginWebView_OnCoreWebView2Initialized"
                   NavigationStarting="LoginWebView_OnNavigationStarting"
-                  Source="https://steamcommunity.com/login/home/?l=schinese&amp;goto=%2Fid%2F123%2Fmyworkshopfiles%3Fbrowsefilter%3Dmysubscriptions%26sortmethod%3Dsubscriptiondate%26section%3Ditems%26appid%3D255710%26p%3D1%26numperpage%3D10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
 
     </Grid>
 </Page>

@@ -1,9 +1,11 @@
-﻿using Microsoft.UI.Xaml;
+﻿using System;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.Http;
+using Microsoft.UI.Xaml.Navigation;
 using SteamWorkshopManager.Client.Engine;
 using SteamWorkshopManager.Core;
 
@@ -28,16 +30,7 @@ public sealed partial class HomePage : Page
 
     private void HomePage_OnLoaded(object sender, RoutedEventArgs e)
     {
-        AppContext.Client = new SteamWorkshopClient(
-            AppContext.SessionContainer.Values["Cookie"]?.ToString(),
-            AppContext.SessionContainer.Values["UserLink"]?.ToString(),
-            new HttpClientHandler
-            {
-                Proxy = new WebProxy("http://127.0.0.1:8118"),
-                UseCookies = false
-            });
 
-        _ = WorkshopItemGrid.ViewModel.ResetEngineAndFillAsync(new SearchEngine(AppContext.Client, null, 281990));
     }
 
     private void RefreshLogin_OnClick(object sender, RoutedEventArgs e)
@@ -51,6 +44,21 @@ public sealed partial class HomePage : Page
         AppContext.SessionContainer.Values.Remove("Cookie");
         AppContext.SessionContainer.Values.Remove("UserLink");
         AppContext.MainWindow.RootFrame.Navigate(typeof(LoginPage), "");
+    }
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        if (e.Parameter is ValueTuple<SearchEngine.SearchContext, Workshop> t)
+        {
+            var (context, workshop) = t;
+            WorkshopItemGrid.ViewModel.Workshop = workshop;
+            _ = WorkshopItemGrid.ViewModel.ResetEngineAndFillAsync(new SearchEngine(AppContext.Client, null, context));
+        }
+        else
+        {
+            WorkshopItemGrid.ViewModel.Workshop = AppContext.CacheDatabase.GetApp(281990).Result!;
+            _ = WorkshopItemGrid.ViewModel.ResetEngineAndFillAsync(new SearchEngine(AppContext.Client, null, 281990));
+        }
     }
 
     public async void Favorite(int appId, long id)

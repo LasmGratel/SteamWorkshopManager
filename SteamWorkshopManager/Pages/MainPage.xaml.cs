@@ -7,6 +7,7 @@ using System.Linq;
 using Windows.System;
 using Windows.UI.Core;
 using Microsoft.UI.Xaml.Media.Animation;
+using SteamWorkshopManager.Util.UI;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -35,7 +36,8 @@ public sealed partial class MainPage : Page
     private readonly List<(string Tag, Type Page)> _pages = new()
     {
         ("home", typeof(HomePage)),
-        ("apps", typeof(AppsPage))
+        ("apps", typeof(AppsPage)),
+        ("collections", typeof(CollectionsPage))
     };
 
     private void NavView_Loaded(object sender, RoutedEventArgs e)
@@ -58,7 +60,7 @@ public sealed partial class MainPage : Page
         // If navigation occurs on SelectionChanged, this isn't needed.
         // Because we use ItemInvoked to navigate, we need to call Navigate
         // here to load the home page.
-        NavView_Navigate("home", new EntranceNavigationTransitionInfo());
+        NavView_Navigate("apps", new EntranceNavigationTransitionInfo());
 
         // Listen to the window directly so the app responds
         // to accelerator keys regardless of which element has focus.
@@ -179,23 +181,5 @@ public sealed partial class MainPage : Page
     private void On_Navigated(object sender, NavigationEventArgs e)
     {
         NavView.IsBackEnabled = ContentFrame.CanGoBack;
-
-        if (ContentFrame.SourcePageType == typeof(SettingsPage))
-        {
-            // SettingsItem is not part of NavView.MenuItems, and doesn't have a Tag.
-            NavView.SelectedItem = (NavigationViewItem)NavView.SettingsItem;
-            NavView.Header = "Settings";
-        }
-        else if (ContentFrame.SourcePageType != null)
-        {
-            var item = _pages.FirstOrDefault(p => p.Page == e.SourcePageType);
-
-            NavView.SelectedItem = NavView.MenuItems
-                .OfType<NavigationViewItem>()
-                .First(n => n.Tag.Equals(item.Tag));
-
-            NavView.Header =
-                ((NavigationViewItem)NavView.SelectedItem)?.Content?.ToString();
-        }
     }
 }

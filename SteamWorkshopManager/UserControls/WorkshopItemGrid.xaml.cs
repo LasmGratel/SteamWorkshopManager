@@ -2,7 +2,14 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using System;
+using System.Linq;
 using CommunityToolkit.WinUI.UI.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using SteamWorkshopManager.Client.Engine;
+using SteamWorkshopManager.Core;
+using SteamWorkshopManager.Model;
+using SteamWorkshopManager.Util;
+using SteamWorkshopManager.Util.UI;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -25,14 +32,115 @@ namespace SteamWorkshopManager.UserControls
 
         private void CheckBox_Tapped(object sender, TappedRoutedEventArgs e)
         {
+            e.Handled = true;
+            var model = sender.GetDataContext<WorkshopItemViewModel>();
+            if (model.Selected)
+            {
+                ViewModel.SelectedViewModels.Add(model);
+            }
+            else
+            {
+                ViewModel.SelectedViewModels.Remove(model);
+            }
+            RefreshUnselectAllLabel();
         }
 
         private async void WorkshopItem_OnTapped(object sender, TappedRoutedEventArgs e)
         {
-            var x = ((DockPanel)sender);
-            ItemDialog.Content = await AppContext.ItemDatabase.GetItem((long)x.DataContext);
+            e.Handled = true;
+            ItemDialog.Content = await AppContext.ItemDatabase.GetItem(sender.GetDataContext<WorkshopItemViewModel>().Item.Id);
             ItemDialog.Visibility = Visibility.Visible;
             await ItemDialog.ShowAsync();
+        }
+
+        private void RefreshUnselectAllLabel()
+        {
+            var count = ViewModel.SelectedViewModels.Count;
+            UnselectAll.Label = count > 0 ? $"Unselect All ({count})" : "Unselect All";
+        }
+
+        private void UnselectAll_OnClick(object sender, RoutedEventArgs e)
+        {
+            ViewModel.ClearSelection();
+            RefreshUnselectAllLabel();
+        }
+
+        private async void Subscribe_OnTapped(object sender, TappedRoutedEventArgs e)
+        {
+            e.Handled = true;
+            var model = sender.GetDataContext<WorkshopItemViewModel>();
+            await model.ToggleSubscribe().ConfigureAwait(false);
+        }
+
+        private async void Favorite_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            e.Handled = true;
+            await sender.GetDataContext<WorkshopItemViewModel>().ToggleFavorite();
+        }
+
+        private void SearchBox_OnQuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            UpdateSearch(args.QueryText);
+        }
+
+        private void SearchBox_OnSuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+        {
+            UpdateSearch(args.SelectedItem.ToString());
+        }
+
+        private void UpdateSearch(string? criteria)
+        {
+            ViewModel.SearchContext.SearchText = criteria ?? "";
+            _ = ViewModel.ResetEngineAndFillAsync(new SearchEngine(AppContext.Client, null, ViewModel.SearchContext));
+        }
+
+        private void ToggleTags_OnClick(object sender, RoutedEventArgs e)
+        {
+            SplitView.IsPaneOpen = !SplitView.IsPaneOpen;
+        }
+
+        private void SearchBox_OnTextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            SearchBox.ItemsSource = ViewModel.SearchTree.Search(sender.Text.ToLower()).Take(10)
+                .Select(i => ViewModel.ViewModels[i].Item.Name);
+        }
+
+        private async void SubscribeItems_OnClick(object sender, RoutedEventArgs e)
+        {
+            foreach (var viewModel in ViewModel.SelectedViewModels)
+            {
+                await viewModel.Subscribe();
+            }
+
+            ViewModel.ClearSelection();
+        }
+
+        private async void FavoriteItems_OnClick(object sender, RoutedEventArgs e)
+        {
+            foreach (var viewModel in ViewModel.SelectedViewModels)
+            {
+                await viewModel.Favorite();
+            }
+
+            ViewModel.ClearSelection();
+        }
+
+        private void SubmitTags_OnClicked(object sender, RoutedEventArgs e)
+        {
+            var tags = ViewModel.Tags.Where(x => x.Selected).Select(x => x.Tag.Name);
+            ViewModel.SearchContext.Tags = tags;
+            _ = ViewModel.ResetEngineAndFillAsync(new SearchEngine(AppContext.Client, null, ViewModel.SearchContext));
+        }
+
+        private void ClearTags_OnClicked(object sender, RoutedEventArgs e)
+        {
+            
+            var tags = ViewModel.Tags.Where(x => x.Selected);
+            if (tags.Any())
+            {
+                ViewModel.SearchContext.Tags = Array.Empty<string>();
+            }
+            tags.ForEach(x => x.Selected = false);
         }
     }
 }

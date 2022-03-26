@@ -7,129 +7,184 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls" 
     xmlns:ui="using:SteamWorkshopManager.Util.UI" 
+    xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
     xmlns:core="using:SteamWorkshopManager.Core"
     xmlns:model="using:SteamWorkshopManager.Model"
+    xmlns:converters1="using:CommunityToolkit.WinUI.UI.Converters"
+    xmlns:system="using:System"
     mc:Ignorable="d">
 
-    <controls:DockPanel>
-        <CommandBar controls:DockPanel.Dock="Top" DefaultLabelPosition="Right" VerticalAlignment="Center" VerticalContentAlignment="Center">
-            <CommandBar.Content>
-                <StackPanel Orientation="Horizontal">
-                    <AutoSuggestBox
-                        x:Name="AutoSuggestBox"
-                        Margin="20, 0, 0, 0"
-                        Width="250"
-                        PlaceholderText="Search an item..."></AutoSuggestBox>
+    <UserControl.Resources>
+        <converters1:BoolToObjectConverter x:Key="BoolToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed"/>
+        <converters1:BoolToObjectConverter x:Key="BoolToVisibilityInverseConverter" TrueValue="Collapsed" FalseValue="Visible"/>
+    </UserControl.Resources>
 
-                </StackPanel>
-            </CommandBar.Content>
-            <CommandBar.PrimaryCommands>
-                <AppBarButton Icon="{ui:FontIcon Glyph=RefreshE72C}" Label="Refresh Items" Click="RefreshItems_OnClick"></AppBarButton>
-            </CommandBar.PrimaryCommands>
-        </CommandBar>
+    <SplitView x:Name="SplitView" IsPaneOpen="False" OpenPaneLength="260" PanePlacement="Right" DisplayMode="Overlay" PaneBackground="{ThemeResource SystemBaseLowColor}">
+        <SplitView.Pane>
+            <controls:DockPanel Margin="20">
+                <controls:DockPanel Margin="0, 0, 0, 10" Dock="Top">
+                    <TextBlock Text="Tags" Style="{StaticResource SubtitleTextBlockStyle}"></TextBlock>
+                    <Button controls:DockPanel.Dock="Right" Content="Submit" HorizontalAlignment="Right" Click="SubmitTags_OnClicked"></Button>
+                    <Button controls:DockPanel.Dock="Right" Content="Clear" HorizontalAlignment="Right" Click="ClearTags_OnClicked"></Button>
+                </controls:DockPanel>
+                <ScrollViewer controls:DockPanel.Dock="Bottom">
+                    <ItemsRepeater ItemsSource="{x:Bind ViewModel.Tags, Mode=OneWay}">
+                        <ItemsRepeater.ItemTemplate>
+                            <DataTemplate x:DataType="model:WorkshopItemTagViewModel">
+                                <CheckBox Content="{x:Bind Tag.Name}" IsChecked="{x:Bind Selected, Mode=TwoWay}"></CheckBox>
+                            </DataTemplate>
+                        </ItemsRepeater.ItemTemplate>
+                    </ItemsRepeater>
+                </ScrollViewer>
+            </controls:DockPanel>
+            
+        </SplitView.Pane>
+        <controls:DockPanel>
+            <CommandBar controls:DockPanel.Dock="Top" DefaultLabelPosition="Right" VerticalAlignment="Center" VerticalContentAlignment="Center">
+                <CommandBar.Content>
+                    <StackPanel Orientation="Horizontal">
+                        <AutoSuggestBox
+                            x:Name="SearchBox"
+                            TextChanged="SearchBox_OnTextChanged"
+                            Margin="20, 0, 0, 0"
+                            Width="250"
+                            PlaceholderText="Search an item..." SuggestionChosen="SearchBox_OnSuggestionChosen" QuerySubmitted="SearchBox_OnQuerySubmitted"></AutoSuggestBox>
+                    </StackPanel>
+                </CommandBar.Content>
+                <CommandBar.PrimaryCommands>
+                    <AppBarButton Icon="{ui:FontIcon Glyph=RefreshE72C}" Label="Refresh Items" Click="RefreshItems_OnClick"></AppBarButton>
+                    <AppBarButton Icon="{ui:FontIcon Glyph=SubscriptionAddED0E}" IsEnabled="{x:Bind ViewModel.HasItemSelected, Mode=OneWay}" Label="Subscribe All" Click="SubscribeItems_OnClick"></AppBarButton>
+                    <AppBarButton Icon="{ui:FontIcon Glyph=FavoriteStarE734}" IsEnabled="{x:Bind ViewModel.HasItemSelected, Mode=OneWay}" Label="Favorite All" Click="FavoriteItems_OnClick"></AppBarButton>
+                    <AppBarButton x:Name="UnselectAll" IsEnabled="{x:Bind ViewModel.HasItemSelected, Mode=OneWay}" Icon="{ui:FontIcon Glyph=ClearE894}" Label="Unselect All" Click="UnselectAll_OnClick"></AppBarButton>
+                    <AppBarButton Icon="{ui:FontIcon Glyph=TagE8EC}" Label="Tags" Click="ToggleTags_OnClick"></AppBarButton>
+                </CommandBar.PrimaryCommands>
+            </CommandBar>
 
-        <controls:AdaptiveGridView
-            controls:DockPanel.Dock="Bottom"
-            VerticalAlignment="Stretch"
-            HorizontalAlignment="Stretch"
-            DesiredWidth="340"
-            ItemHeight="160"
-            x:Name="WorkshopItemView"
-            ItemsSource="{x:Bind ViewModel.ItemsView, Mode=OneWay}"
-            ScrollViewer.VerticalScrollBarVisibility="Visible"
-            ScrollViewer.VerticalScrollMode="Enabled"
-            ScrollViewer.HorizontalScrollMode="Disabled"
-            >
-            <GridView.ItemTemplate>
-                <DataTemplate x:DataType="model:WorkshopItemViewModel">
-                    <controls:DockPanel Margin="5"
-                                        DataContext="{x:Bind Item.Id, Mode=OneWay}"
-                                        Tapped="WorkshopItem_OnTapped"
-                                        >
-                        <controls:DockPanel.Background>
-                            <ImageBrush
-                                Opacity="0.6"
-                                Stretch="UniformToFill"
-                                ImageSource="{x:Bind Item.ImageUrl, Mode=OneWay}" />
-                        </controls:DockPanel.Background>
-                        <Border>
-                            <Border.Background>
-                                <AcrylicBrush TintColor="Black" TintOpacity="0.5" TintLuminosityOpacity="0.5" Opacity="0.5"></AcrylicBrush>
-                            </Border.Background>
-                            <controls:DockPanel>
-                                <StackPanel
-                                    controls:DockPanel.Dock="Top"
-                                    Spacing="10"
-                                    Margin="0, 20, 0, 20"
-                                    Height="20"
-                                    HorizontalAlignment="Right"
-                                    Orientation="Horizontal">
-                                    <ContentPresenter
-                                        Width="20"
+            <controls:AdaptiveGridView
+                controls:DockPanel.Dock="Bottom"
+                VerticalAlignment="Stretch"
+                HorizontalAlignment="Stretch"
+                DesiredWidth="340"
+                ItemHeight="160"
+                
+                Margin="20, 0, 0, 0"
+                x:Name="WorkshopItemView"
+                ItemsSource="{x:Bind ViewModel.ItemsView, Mode=OneWay}"
+                ScrollViewer.VerticalScrollBarVisibility="Visible"
+                ScrollViewer.VerticalScrollMode="Enabled"
+                ScrollViewer.HorizontalScrollMode="Disabled"
+                >
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="model:WorkshopItemViewModel">
+                        <controls:DockPanel Margin="5"
+                                            Tapped="WorkshopItem_OnTapped"
+                                            >
+                            <controls:DockPanel.Background>
+                                <ImageBrush
+                                    Opacity="0.6"
+                                    Stretch="UniformToFill"
+                                    ImageSource="{x:Bind Item.ImageUrl, Mode=OneWay}" />
+                            </controls:DockPanel.Background>
+                            <Border>
+                                <Border.Background>
+                                    <AcrylicBrush TintColor="Black" TintOpacity="0.5" TintLuminosityOpacity="0.5" Opacity="0.5"></AcrylicBrush>
+                                </Border.Background>
+                                <controls:DockPanel>
+                                    <StackPanel
+                                        controls:DockPanel.Dock="Top"
+                                        Spacing="10"
+                                        Margin="0, 20, 0, 20"
+                                        Height="20"
                                         HorizontalAlignment="Right"
-                                        HorizontalContentAlignment="Center"
-                                        VerticalContentAlignment="Center"
-                                        Content="{ui:FontIcon Glyph=SubscriptionAddED0E}">
-                                    </ContentPresenter>
-                                    <ContentPresenter
-                                        Width="20"
-                                        HorizontalAlignment="Right"
-                                        HorizontalContentAlignment="Center"
-                                        VerticalContentAlignment="Center"
-                                        Content="{ui:FontIcon Glyph=HeartEB51, FontSize=18}">
-                                    </ContentPresenter>
-                                    <CheckBox
-                                        Tapped="CheckBox_Tapped"
-                                        MaxWidth="20"
-                                        MinWidth="20"
-                                        Margin="0, 0, 10, 0"
-                                        HorizontalContentAlignment="Center"
-                                        VerticalContentAlignment="Center"
-                                        HorizontalAlignment="Right"
-                                        Width="20">
-                                    </CheckBox>
-                                </StackPanel>
+                                        Orientation="Horizontal">
+                                        <ContentPresenter
+                                            Width="20"
+                                            HorizontalAlignment="Right"
+                                            HorizontalContentAlignment="Center"
+                                            VerticalContentAlignment="Center"
+                                            Content="{ui:FontIcon Glyph=SubscriptionAddED0E}">
+                                        </ContentPresenter>
+                                        <Grid Width="20" Height="20">
+                                            <ContentPresenter
+                                                Width="20"
+                                                HorizontalContentAlignment="Center"
+                                                VerticalContentAlignment="Center"
+                                                Tapped="Favorite_Tapped"
+                                                Visibility="{Binding Path=Favorited, Converter={StaticResource BoolToVisibilityInverseConverter}}"
+                                                Content="{ui:FontIcon Glyph=FavoriteStarE734}">
+                                            </ContentPresenter>
+                                            <ContentPresenter
+                                                Width="20"
+                                                HorizontalContentAlignment="Center"
+                                                VerticalContentAlignment="Center"
+                                                Tapped="Favorite_Tapped"
+                                                Visibility="{x:Bind Favorited, Mode=OneWay}"
+                                                Content="{ui:FontIcon Glyph=FavoriteStarFillE735}">
+                                            </ContentPresenter>
+                                        </Grid>
+                                        
+                                        <CheckBox
+                                            Tapped="CheckBox_Tapped"
+                                            MaxWidth="20"
+                                            MinWidth="20"
+                                            Margin="0, 0, 10, 0"
+                                            HorizontalContentAlignment="Center"
+                                            VerticalContentAlignment="Center"
+                                            HorizontalAlignment="Right"
+                                            IsChecked="{x:Bind Selected, Mode=TwoWay}"
+                                            Width="20">
+                                        </CheckBox>
+                                    </StackPanel>
 
-                                <StackPanel
-                                    Spacing="5"
-                                    VerticalAlignment="Bottom"
-                                    controls:DockPanel.Dock="Bottom"
-                                    Margin="15, 0, 0, 5">
-                                    <TextBlock Text="{x:Bind Item.Name}" Foreground="White"></TextBlock>
-                                    <TextBlock Text="{x:Bind Item.Id}" FontWeight="Light" Foreground="White"></TextBlock>
-                                    <controls:DockPanel>
-                                        <Button Content="Subscribe" Background="White" Foreground="Black" HorizontalAlignment="Right"></Button>
-                                        <HyperlinkButton Content="Open in Browser" NavigateUri="{x:Bind Item.Url}" HorizontalAlignment="Right"></HyperlinkButton>
-                                    </controls:DockPanel>
-                                </StackPanel>
-                            </controls:DockPanel>
-                        </Border>
+                                    <StackPanel
+                                        Spacing="5"
+                                        VerticalAlignment="Bottom"
+                                        controls:DockPanel.Dock="Bottom"
+                                        Margin="15, 0, 0, 5">
+                                        <TextBlock Text="{x:Bind Item.Name}" Foreground="White"></TextBlock>
+                                        <TextBlock Text="{x:Bind Item.Id}" FontWeight="Light" Foreground="White"></TextBlock>
+                                        <controls:DockPanel>
+                                            <ToggleButton controls:DockPanel.Dock="Right" x:Name="SubscribeButton" Tapped="Subscribe_OnTapped" Content="{x:Bind GetSubscribeButtonContent(Subscribed), Mode=OneWay}" IsChecked="{x:Bind Subscribed, Mode=OneWay}" Background="White" Foreground="Black" HorizontalAlignment="Right"></ToggleButton>
+                                        </controls:DockPanel>
+                                    </StackPanel>
+                                </controls:DockPanel>
+                            </Border>
 
-                    </controls:DockPanel>
-                </DataTemplate>
-            </GridView.ItemTemplate>
-        </controls:AdaptiveGridView>
-        <ContentDialog x:Name="ItemDialog" Visibility="Collapsed" HorizontalAlignment="Stretch">
-            <ContentDialog.ContentTemplate>
-                <DataTemplate x:DataType="core:WorkshopItemDetails">
-                    <ScrollViewer MaxHeight="320">
-                        <StackPanel>
-                            <StackPanel Margin="5">
-                                <StackPanel.Background>
-                                    <ImageBrush
-                                        Opacity="0.6"
-                                        Stretch="UniformToFill"
-                                        ImageSource="{x:Bind ImageUrl, Mode=OneWay}" />
-                                </StackPanel.Background>
-                                <Border>
-                                    <Border.Background>
-                                        <AcrylicBrush TintColor="Black" TintOpacity="0.5" TintLuminosityOpacity="0.5" Opacity="0.5"></AcrylicBrush>
-                                    </Border.Background>
+                        </controls:DockPanel>
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </controls:AdaptiveGridView>
+            <ContentDialog x:Name="ItemDialog" Visibility="Collapsed" HorizontalAlignment="Stretch">
+                <ContentDialog.ContentTemplate>
+                    <DataTemplate x:DataType="core:WorkshopItemDetails">
+                        <ScrollViewer MaxHeight="320" Width="480">
+                            <StackPanel>
+                                <StackPanel>
+                                    <ListView x:Name="ImageList"
+                                              ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                              ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                              ScrollViewer.HorizontalScrollMode="Enabled"
+                                              ScrollViewer.VerticalScrollMode="Disabled"
+                                              ItemsSource="{x:Bind ScreenshotUrls}"
+                                              IsItemClickEnabled="True">
+                                        <ListView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ItemsStackPanel Orientation="Horizontal"/>
+                                            </ItemsPanelTemplate>
+                                        </ListView.ItemsPanel>
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate x:DataType="system:String">
+                                                <RelativePanel Margin="0,10,0,20">
+                                                    <Image MaxWidth="300" MaxHeight="300" Stretch="UniformToFill" Source="{x:Bind Mode=OneWay}"/>
+                                                </RelativePanel>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
+                                    <Image Stretch="UniformToFill" Source="{x:Bind ImageUrl, Mode=OneWay}"></Image>
                                     <controls:DockPanel>
                                         <StackPanel
                                             controls:DockPanel.Dock="Top"
                                             Spacing="10"
-                                            Margin="20"
                                             Height="20"
                                             HorizontalAlignment="Right"
                                             Orientation="Horizontal">
@@ -162,17 +217,18 @@
                                             </controls:DockPanel>
                                         </StackPanel>
                                     </controls:DockPanel>
-                                </Border>
-                            </StackPanel>
-                            <StackPanel controls:DockPanel.Dock="Bottom">
-                                <RichTextBlock ui:Properties.Html="{x:Bind Description, Mode=OneWay}" TextWrapping="Wrap">
+                                </StackPanel>
+                                <StackPanel controls:DockPanel.Dock="Bottom">
 
-                                </RichTextBlock>
+                                    <RichTextBlock ui:Properties.Html="{x:Bind Description, Mode=OneWay}" TextWrapping="Wrap">
+
+                                    </RichTextBlock>
+                                </StackPanel>
                             </StackPanel>
-                        </StackPanel>
-                    </ScrollViewer>
-                </DataTemplate>
-            </ContentDialog.ContentTemplate>
-        </ContentDialog>
-    </controls:DockPanel>
+                        </ScrollViewer>
+                    </DataTemplate>
+                </ContentDialog.ContentTemplate>
+            </ContentDialog>
+        </controls:DockPanel>
+    </SplitView>
 </UserControl>

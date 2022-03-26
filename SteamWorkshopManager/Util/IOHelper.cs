@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -51,4 +52,28 @@ public static class IOHelper
         return bytes;
     }
 
+
+    public static UTF8Encoding Utf8NoBom = new(encoderShouldEmitUTF8Identifier: false, throwOnInvalidBytes: true);
+
+    public static StreamWriter GetWriter(this Stream stream, Encoding? encoding = null, int bufferSize = -1, bool leaveOpen = false)
+    {
+        try
+        {
+            // https://docs.microsoft.com/zh-cn/dotnet/api/system.io.streamwriter.-ctor?view=net-5.0#System_IO_StreamWriter__ctor_System_IO_Stream_System_Text_Encoding_System_Int32_System_Boolean_
+            // https://github.com/dotnet/corefx/blob/master/src/Common/src/CoreLib/System/IO/StreamWriter.cs#L94
+            return new StreamWriter(stream, encoding, bufferSize, leaveOpen);
+        }
+        catch (Exception e) when (e is ArgumentNullException or ArgumentOutOfRangeException)
+        {
+            if (encoding == null)
+            {
+                encoding = Utf8NoBom;
+            }
+            if (bufferSize == -1)
+            {
+                bufferSize = 1024;
+            }
+            return new StreamWriter(stream, encoding, bufferSize, leaveOpen);
+        }
+    }
 }

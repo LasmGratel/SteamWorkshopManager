@@ -7,9 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SteamWorkshopManager", "Ste
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SteamWorkshopManager.Core", "SteamWorkshopManager.Core\SteamWorkshopManager.Core.csproj", "{06241B35-E7A9-4741-B748-A5AFEF6D09C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamWorkshopManager.Test", "SteamWorkshopManager.Test\SteamWorkshopManager.Test.csproj", "{E1F885A7-0FB6-4FD8-871C-359DFF93165E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SteamWorkshopManager.Test", "SteamWorkshopManager.Test\SteamWorkshopManager.Test.csproj", "{E1F885A7-0FB6-4FD8-871C-359DFF93165E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SteamWorkshopManager.Console", "SteamWorkshopManager.Console\SteamWorkshopManager.Console.csproj", "{B238A2C1-E354-437A-A6EE-5954C5D2A927}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SteamWorkshopManager.Console", "SteamWorkshopManager.Console\SteamWorkshopManager.Console.csproj", "{B238A2C1-E354-437A-A6EE-5954C5D2A927}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Titanium.Web.Proxy", "Titanium-Web-Proxy\src\Titanium.Web.Proxy\Titanium.Web.Proxy.csproj", "{A80A18BC-71D7-4927-A577-1DA4CC2C6630}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +97,22 @@ Global
 		{B238A2C1-E354-437A-A6EE-5954C5D2A927}.Release|x64.Build.0 = Release|Any CPU
 		{B238A2C1-E354-437A-A6EE-5954C5D2A927}.Release|x86.ActiveCfg = Release|Any CPU
 		{B238A2C1-E354-437A-A6EE-5954C5D2A927}.Release|x86.Build.0 = Release|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Debug|arm64.Build.0 = Debug|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Debug|x64.Build.0 = Debug|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Debug|x86.Build.0 = Debug|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Release|arm64.ActiveCfg = Release|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Release|arm64.Build.0 = Release|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Release|x64.ActiveCfg = Release|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Release|x64.Build.0 = Release|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Release|x86.ActiveCfg = Release|Any CPU
+		{A80A18BC-71D7-4927-A577-1DA4CC2C6630}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -48,6 +48,19 @@ public class SteamWorkshopClient
         return await _client.SendAsync(message).ConfigureAwait(false);
     }
 
+    public async Task<HttpResponseMessage> PostRequest(string url, HttpContent content)
+    {
+        var message = new HttpRequestMessage(HttpMethod.Post, url)
+        {
+            Content = content,
+            Version = HttpVersion.Version20,
+            VersionPolicy = HttpVersionPolicy.RequestVersionOrLower
+        };
+
+        message.Headers.TryAddWithoutValidation("Cookie", Cookie);
+        return await _client.SendAsync(message).ConfigureAwait(false);
+    }
+
     public async Task<string> GetBody(string url)
     {
         return await (await SendRequest(url)).Content.ReadAsStringAsync();
@@ -95,8 +108,8 @@ public class SteamWorkshopClient
     /// <param name="sortOptions">Sort options in webpage</param>
     /// <param name="trend">If sort options is trend, specify its trend. May be -1(All time), 1, 7, 90, 180, 365</param>
     /// <param name="page">Page num, start from 1</param>
-    /// <returns></returns>
-    public async Task<List<WorkshopItem>> SearchWorkshopItems(long appId, string searchText, SortOptions sortOptions, int trend, int page)
+    /// <returns>Workshop item and tag list</returns>
+    public async Task<(List<WorkshopItem>, List<WorkshopItemTag>)> SearchWorkshopItems(long appId, string searchText, SortOptions sortOptions, int trend, int page)
     {
         var url =
             $"https://steamcommunity.com/workshop/browse/?appid={appId}&browsesort={sortOptions.GetName()}&actualsort={sortOptions.GetName()}&searchtext={searchText}&section=readytouseitems&created_date_range_filter_start=0&created_date_range_filter_end=0&updated_date_range_filter_start=0&updated_date_range_filter_end=0&p={page}";
@@ -120,7 +133,7 @@ public class SteamWorkshopClient
         var body = await response.Content.ReadAsStringAsync();
         while (!body.Contains("no_items"))
         {
-            foreach (var item in await Parser.ParseSearchResult(body))
+            foreach (var item in (await Parser.ParseSearchResult(body)).Item1)
             {
                 yield return item;
             }
@@ -161,7 +174,7 @@ public class SteamWorkshopClient
 
     public async Task VoteUp(long id)
     {
-        (await _client.PostAsync("https://steamcommunity.com/sharedfiles/voteup",
+        (await PostRequest("https://steamcommunity.com/sharedfiles/voteup",
             new FormUrlEncodedContent(new KeyValuePair<string, string>[]
             {
                 new("id", $"{id}"),
@@ -171,7 +184,7 @@ public class SteamWorkshopClient
 
     public async Task VoteDown(long id)
     {
-        (await _client.PostAsync("https://steamcommunity.com/sharedfiles/votedown",
+        (await PostRequest("https://steamcommunity.com/sharedfiles/votedown",
             new FormUrlEncodedContent(new KeyValuePair<string, string>[]
             {
                 new("id", $"{id}"),
@@ -181,7 +194,7 @@ public class SteamWorkshopClient
 
     public async Task PostSubscribeCollectionAsync(int appId, long id)
     {
-        (await _client.PostAsync("https://steamcommunity.com/sharedfiles/subscribecollection",
+        (await PostRequest("https://steamcommunity.com/sharedfiles/subscribecollection",
             new FormUrlEncodedContent(new KeyValuePair<string, string>[]
             {
                 new("id", $"{id}"),
@@ -192,7 +205,7 @@ public class SteamWorkshopClient
 
     public async Task PostUnsubscribeCollectionAsync(long id)
     {
-        (await _client.PostAsync("https://steamcommunity.com/sharedfiles/unsubscribecollection",
+        (await PostRequest("https://steamcommunity.com/sharedfiles/unsubscribecollection",
             new FormUrlEncodedContent(new[]
             {
                 new KeyValuePair<string, string>("publishedfileid", $"{id}"),
@@ -200,9 +213,9 @@ public class SteamWorkshopClient
             }))).EnsureSuccessStatusCode();
     }
 
-    public async Task PostFileSubscribeAsync(int appId, long id)
+    public async Task PostFileSubscribeAsync(long appId, long id)
     {
-        (await _client.PostAsync("https://steamcommunity.com/sharedfiles/subscribe",
+        (await PostRequest("https://steamcommunity.com/sharedfiles/subscribe",
             new FormUrlEncodedContent(new KeyValuePair<string, string>[]
             {
                 new("id", $"{id}"),
@@ -211,9 +224,9 @@ public class SteamWorkshopClient
             }))).EnsureSuccessStatusCode();
     }
 
-    public async Task PostFileUnsubscribeAsync(int appId, long id)
+    public async Task PostFileUnsubscribeAsync(long appId, long id)
     {
-        (await _client.PostAsync("https://steamcommunity.com/sharedfiles/unsubscribe",
+        (await PostRequest("https://steamcommunity.com/sharedfiles/unsubscribe",
             new FormUrlEncodedContent(new KeyValuePair<string, string>[]
             {
                 new("id", $"{id}"),
@@ -222,26 +235,26 @@ public class SteamWorkshopClient
             }))).EnsureSuccessStatusCode();
     }
 
-    public async Task PostFileFavoriteAsync(int appId, long id)
+    public async Task PostFileFavoriteAsync(long appId, long id)
     {
-        (await _client.PostAsync("https://steamcommunity.com/sharedfiles/favorite",
+        (await PostRequest("https://steamcommunity.com/sharedfiles/favorite",
             new FormUrlEncodedContent(new KeyValuePair<string, string>[]
             {
                 new("id", $"{id}"),
                 new("appid", $"{appId}"),
                 new("sessionid", SessionId)
-            }))).EnsureSuccessStatusCode();
+            })).ConfigureAwait(false)).EnsureSuccessStatusCode();
     }
 
-    public async Task PostFileUnfavoriteAsync(int appId, long id)
+    public async Task PostFileUnfavoriteAsync(long appId, long id)
     {
-        (await _client.PostAsync("https://steamcommunity.com/sharedfiles/unfavorite",
+        (await PostRequest("https://steamcommunity.com/sharedfiles/unfavorite",
             new FormUrlEncodedContent(new KeyValuePair<string, string>[]
             {
                 new("id", $"{id}"),
                 new("appid", $"{appId}"),
                 new("sessionid", SessionId)
-            }))).EnsureSuccessStatusCode();
+            })).ConfigureAwait(false)).EnsureSuccessStatusCode();
     }
 
     /// <summary>
@@ -251,7 +264,7 @@ public class SteamWorkshopClient
     /// <param name="page">Page starts from 1</param>
     /// <param name="pageSize">Must be one of 10, 20, 30.</param>
     /// <returns></returns>
-    public async IAsyncEnumerable<WorkshopItem> GetSubscribedItemsAsync(int appId, int page = 1, int pageSize = 10)
+    public async IAsyncEnumerable<WorkshopItem> GetSubscribedItemsAsync(long appId, int page = 1, int pageSize = 10)
     {
         var url =
             $"{UserProfileUrl}/myworkshopfiles?browsefilter=mysubscriptions&sortmethod=subscriptiondate&section=items&appid={appId}&p={page}&numperpage={pageSize}";
@@ -265,7 +278,7 @@ public class SteamWorkshopClient
 
     public async Task AddToCollectionAsync(long collectionId, long itemId)
     {
-        (await _client.PostAsync("https://steamcommunity.com/sharedfiles/addchild",
+        (await PostRequest("https://steamcommunity.com/sharedfiles/addchild",
             new FormUrlEncodedContent(new KeyValuePair<string, string>[]
             {
                 new("id", $"{collectionId}"),
@@ -282,7 +295,7 @@ public class SteamWorkshopClient
     /// <returns>Success code, 1 = success</returns>
     public async Task<int> RemoveFromCollectionAsync(long collectionId, long itemId)
     {
-        var response = (await _client.PostAsync("https://steamcommunity.com/sharedfiles/removechild",
+        var response = (await PostRequest("https://steamcommunity.com/sharedfiles/removechild",
             new FormUrlEncodedContent(new KeyValuePair<string, string>[]
             {
                 new("id", $"{collectionId}"),
@@ -296,7 +309,7 @@ public class SteamWorkshopClient
 
     public async IAsyncEnumerable<WorkshopCollection> GetMyCollectionsAsync(int appId)
     {
-        var response = (await _client.PostAsync("https://steamcommunity.com/sharedfiles/ajaxgetmycollections",
+        var response = (await PostRequest("https://steamcommunity.com/sharedfiles/ajaxgetmycollections",
             new FormUrlEncodedContent(new KeyValuePair<string, string>[]
             {
                 new("appid", $"{appId}"),

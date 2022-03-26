@@ -7,18 +7,21 @@ namespace SteamWorkshopManager.Core;
 /// </summary>
 public partial record WorkshopItem
 {
-    [BsonId]
-    public long Id { get; set; }
+    [BsonId] public long Id;
 
-    public string ImageUrl { get; set; }
+    public string ImageUrl;
 
-    public string Name { get; set; }
+    public string Name;
 
-    public long AppId { get; set; }
+    public long AppId;
 
-    public DateTime? SubscribedDate { get; set; }
+    public DateTime? SubscribedDate;
 
-    public DateTime? LastUpdatedDate { get; set; }
+    public DateTime? LastUpdatedDate;
+
+    public bool Subscribed;
+
+    public bool Favorited;
 
     [BsonIgnore]
     public string Url => $"https://steamcommunity.com/workshop/filedetails/?id={Id}";

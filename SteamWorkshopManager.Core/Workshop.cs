@@ -5,7 +5,7 @@ namespace SteamWorkshopManager.Core;
 public record Workshop
 {
     [BsonId(false)]
-    public long AppId { get; internal set; }
+    public long AppId { get; set; }
 
     public string Name { get; set; } = "No name";
 
@@ -17,6 +17,8 @@ public record Workshop
 
     [BsonIgnore]
     public string CapsuleImageUrl => $"https://cdn.akamai.steamstatic.com/steam/apps/{AppId}/capsule_184x69.jpg";
+
+    public List<WorkshopItemTag> Tags { get; set; } = new();
 
     public virtual bool Equals(Workshop? other)
     {

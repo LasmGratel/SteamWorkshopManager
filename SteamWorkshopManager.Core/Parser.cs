@@ -22,12 +22,13 @@ public static class Parser
                 var appId = element.GetAttribute("onClick")?.Split('/').GetValue(4) as string ??
                        throw new FormatException("Cannot parse " + element);
                 var name = element.QuerySelector(".appLogo")?.GetAttribute("alt") ?? "";
+
                 return new Workshop { AppId = long.Parse(appId), Name = name };
             })
             .ToList();
     }
 
-    public static async Task<List<WorkshopItem>> ParseSearchResult(string source)
+    public static async Task<(List<WorkshopItem>, List<WorkshopItemTag>)> ParseSearchResult(string source)
     {
         var parser = new HtmlParser();
         var doc = await parser.ParseDocumentAsync(source);
@@ -36,6 +37,16 @@ public static class Parser
         var items = doc.QuerySelector(".workshopBrowseItems")!;
         var scripts = items.QuerySelectorAll("script").ToList();
         var elements = items.QuerySelectorAll(".workshopItem").ToList();
+
+        var normalTags = doc.QuerySelectorAll(".inputTagsFilter").Where(e2 => int.TryParse(e2.Id, out _)).Select(e2 => new WorkshopItemTag
+            { Id = int.Parse(e2.Id!), Name = e2.GetAttribute("value")! });
+        var miscellaneousTags = doc
+            .QuerySelectorAll(".selectTagsFilter")
+            .SelectMany(x => x.QuerySelectorAll("option"))
+            .Select(x => x.GetAttribute("value") ?? "-1")
+            .Where(x => x != "-1").Select(x => new WorkshopItemTag { Name = x });
+        var tags = normalTags.Union(miscellaneousTags).ToList();
+
         for (var i = 0; i < elements.Count; i++)
         {
             var script = scripts[i].TextContent;
@@ -49,11 +60,13 @@ public static class Parser
                 Id = obj.id,
                 Name = obj.title,
                 AppId = obj.appid,
+                Subscribed = obj.user_subscribed,
+                Favorited = obj.user_favorited,
                 ImageUrl = imageUrl
             });
         }
 
-        return list;
+        return (list, tags);
     }
 
     /// <summary>
@@ -76,6 +89,7 @@ public static class Parser
             var subscribedDate = dates.First().TextContent.ReplaceFirst("Subscribed on ", "");
             var lastUpdatedDate = dates.Last().TextContent.ReplaceFirst("Last Updated ", "");
             var imageUrl = item.QuerySelector(".backgroundImg")?.GetAttribute("src");
+            var favorited = item.QuerySelector(".favorite")?.ClassList.Contains("toggled") ?? false;
 
             yield return new WorkshopItem
             {
@@ -83,6 +97,8 @@ public static class Parser
                 Id = long.Parse(id),
                 Name = title!,
                 ImageUrl = imageUrl!,
+                Subscribed = true,
+                Favorited = favorited,
                 SubscribedDate = ParseSteamDateTime(subscribedDate),
                 LastUpdatedDate = ParseSteamDateTime(lastUpdatedDate)
             };
@@ -112,7 +128,7 @@ public static class Parser
             select new SteamProfile { Url = url, Name = name, Avatar = avatar }
             ).ToList();
 
-        var collections = long.Parse(doc.QuerySelector(".parentCollectionsNumOthers")?.QuerySelector("a")?.TextContent.Replace(" collections", "") ?? "0");
+        _ = long.TryParse(doc.QuerySelector(".parentCollectionsNumOthers")?.QuerySelector("a")?.TextContent.Replace(" collections", "") ?? "0", out var collections);
 
         var stats = doc.QuerySelectorAll(".stats_table td").ToList();
         var visitors = long.Parse(stats[0].TextContent, NumberStyles.AllowThousands);
@@ -122,7 +138,7 @@ public static class Parser
         var starsStr = doc.QuerySelector(".fileRatingDetails")?.QuerySelector("img")?.GetAttribute("src") ?? "https://community.cloudflare.steamstatic.com/public/images/sharedfiles/not-yet_large.png?v=2";
         var stars = 0;
 
-        if (starsStr != "https://community.cloudflare.steamstatic.com/public/images/sharedfiles/not-yet_large.png?v=2")
+        if (!starsStr.EndsWith("not-yet_large.png?v=2"))
         {
             stars = int.Parse(new string(starsStr.AsSpan().SubstringAfterLast('/').TakeWhile(char.IsDigit).ToArray()));
         }
@@ -141,8 +157,14 @@ public static class Parser
 
         var app = doc.QuerySelector(".breadcrumbs")?.QuerySelector("a")?.GetAttribute("href")?[31..] ?? "";
         var title = doc.QuerySelector(".workshopItemTitle")?.TextContent ?? "";
-        var imgUrl = doc.QuerySelector("#previewImageMain")?.GetAttribute("src")?.AsSpan().SubstringBeforeLast('/') ?? "";
+        var imgUrl = doc.QuerySelector("#previewImage")?.GetAttribute("src")?.AsSpan().SubstringBeforeLast('/') ?? doc.QuerySelector("#previewImageMain")?.GetAttribute("src")?.AsSpan().SubstringBeforeLast('/') ?? "";
         var lastUpdatedDate = doc.QuerySelectorAll(".detailsStatRight").Last().TextContent;
+
+        var favorited = doc.QuerySelector("FavoriteItemBtn")?.ClassList.Contains("toggled") ?? false;
+        var subscribed = doc.QuerySelector("SubscribeItemBtn")?.ClassList.Contains("toggled") ?? false;
+        var screenshotUrls = doc.QuerySelectorAll(".highlight_strip_screenshot")
+            .Select(x => x.QuerySelector("img")?.GetAttribute("src")?.AsSpan().SubstringBeforeLast('/'))
+            .Where(x => x != null).Select(x => x + '/');
 
         return new WorkshopItemDetails
         {
@@ -151,6 +173,8 @@ public static class Parser
             AppId = long.Parse(app),
             ImageUrl = imgUrl + "/",
             SubscribedDate = null,
+            Subscribed = subscribed,
+            Favorited = favorited,
             LastUpdatedDate = ParseSteamDateTime(lastUpdatedDate),
             Authors = authors,
             FileSize = fileSize,
@@ -162,6 +186,7 @@ public static class Parser
             Dependencies = requiredItems,
             Collections = collections,
             Stars = stars,
+            ScreenshotUrls = screenshotUrls.ToList(),
         };
     }
 

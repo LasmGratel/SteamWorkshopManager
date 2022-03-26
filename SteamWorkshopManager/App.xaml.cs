@@ -2,6 +2,7 @@
 using LiteDB;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SteamWorkshopManager.Client.Service;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -24,7 +25,11 @@ public partial class App : Application
         return Host.CreateDefaultBuilder()
             .ConfigureServices(services =>
                 services
-                    .AddSingleton(new LiteDatabase(AppContext.DatabaseFilePath)));
+                    .AddSingleton(new LiteDatabase(AppContext.DatabaseFilePath))
+                    .AddSingleton(new DnsAnalysisService())
+                    .AddSingleton<IHttpService>(new HttpService())
+                    .AddSingleton<IHttpProxyService>(provider => new HttpProxyService(provider.GetRequiredService<DnsAnalysisService>()))
+            );
     }
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code

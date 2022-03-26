@@ -1,4 +1,8 @@
-﻿using Microsoft.UI.Xaml;
+﻿using System;
+using System.Net;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
+using SteamWorkshopManager.Client.Service;
 using SteamWorkshopManager.Pages;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -17,8 +21,42 @@ public sealed partial class MainWindow : Window
         this.InitializeComponent();
     }
 
-    private void RootFrame_OnLoaded(object sender, RoutedEventArgs e)
+    private async void RootFrame_OnLoaded(object sender, RoutedEventArgs e)
     {
+        var proxy = App.Instance.AppHost.Services.GetRequiredService<IHttpProxyService>();
+        proxy.ProxyDNS = IPAddress.Parse(DnsAnalysisService.PrimaryDNS_Dnspod);
+        proxy.ProxyDomains = new[]
+        {
+            new AccelerateProjectDTO
+            {
+                PortId = 443,
+                ServerName = "store.steampowered.com",
+                DomainNames = "store.steampowered.com/app/*;store.steampowered.com/agecheck/*",
+                ForwardDomainName = "partner.steamgames.com",
+                Enabled = true,
+                Hosts = "store.steampowered.com",
+                UserAgent = "${origin} Googlebot/2.1 …www.google.com/bot.html)"
+            },
+            new AccelerateProjectDTO
+            {
+                PortId = 443,
+                ServerName = "steamcommunity.com",
+                DomainNames = "steamcommunity.com",
+                ForwardDomainName = "partner.steamgames.com",
+                Enabled = true,
+                Hosts = "steamcommunity.com;www.steamcommunity.com",
+            },
+            new AccelerateProjectDTO
+            {
+                PortId = 443,
+                ServerName = "steamimage.rmbgame.net",
+                DomainNames = "steamcdn-a.akamaihd.net;steamuserimages-a.akamaihd.net;cdn.akamai.steamstatic.com;community.akamai.steamstatic.com",
+                ForwardDomainName = "steamimage.rmbgame.net",
+                Enabled = true,
+                Hosts = "steamcdn-a.akamaihd.net;cdn.akamai.steamstatic.com;community.akamai.steamstatic.com",
+            }
+        };
+        await proxy.StartProxy();
         if ((AppContext.SessionContainer.Values["Cookie"]?.ToString()?.Trim() ?? "") == "")
             RootFrame.Navigate(typeof(LoginPage));
         else

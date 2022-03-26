@@ -1,0 +1,3 @@
+[submodule "Titanium-Web-Proxy"]
+	path = Titanium-Web-Proxy
+	url = https://github.com/BeyondDimension/Titanium-Web-Proxy.git

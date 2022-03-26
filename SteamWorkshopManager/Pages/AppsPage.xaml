@@ -43,7 +43,6 @@
             <controls:AdaptiveGridView.ItemTemplate>
                 <DataTemplate x:DataType="core:Workshop">
                     <controls:DockPanel Margin="5"
-                                        DataContext="{x:Bind AppId, Mode=OneWay}"
                                         Tapped="App_OnTapped"
                                         >
                         <controls:DockPanel.Background>

@@ -5,8 +5,12 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.WinUI.UI;
+using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Navigation;
+using SteamWorkshopManager.Client.Engine;
 using SteamWorkshopManager.Core;
 using SteamWorkshopManager.Util;
+using SteamWorkshopManager.Util.UI;
 using SuffixTreeSharp;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -49,6 +53,8 @@ namespace SteamWorkshopManager.Pages
 
         private void App_OnTapped(object sender, TappedRoutedEventArgs e)
         {
+            var context = sender.GetDataContext<Workshop>();
+            Frame.NavigateToType(typeof(HomePage), (new SearchEngine.SearchContext { AppId = context.AppId }, context), new FrameNavigationOptions());
         }
 
 

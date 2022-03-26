@@ -34,4 +34,6 @@ public record WorkshopItemDetails : WorkshopItem
     public long Collections { get; set; }
 
     public List<long> Dependencies { get; set; } = new();
+
+    public List<string> ScreenshotUrls { get; set; } = new();
 }

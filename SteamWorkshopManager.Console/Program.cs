@@ -16,6 +16,6 @@ public class Program
                 Proxy = new WebProxy("http://127.0.0.1:8118"),
                 UseCookies = false
             });
-        
+        System.Console.WriteLine(await client.GetWorkshopItemDetailsAsync(784959884));
     }
 }
