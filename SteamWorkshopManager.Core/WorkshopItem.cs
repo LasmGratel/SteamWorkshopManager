@@ -25,4 +25,16 @@ public partial record WorkshopItem
 
     [BsonIgnore]
     public string Url => $"https://steamcommunity.com/workshop/filedetails/?id={Id}";
+
+    public virtual bool Equals(WorkshopItem? other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Id == other.Id && AppId == other.AppId;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Id, AppId);
+    }
 }

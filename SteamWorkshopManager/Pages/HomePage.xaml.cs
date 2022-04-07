@@ -33,31 +33,22 @@ public sealed partial class HomePage : Page
 
     }
 
-    private void RefreshLogin_OnClick(object sender, RoutedEventArgs e)
-    {
-        AppContext.MainWindow.RootFrame.Navigate(typeof(LoginPage), AppContext.SessionContainer.Values["Cookie"]?.ToString());
-
-    }
-
-    private void LogoutButton_OnClick(object sender, RoutedEventArgs e)
-    {
-        AppContext.SessionContainer.Values.Remove("Cookie");
-        AppContext.SessionContainer.Values.Remove("UserLink");
-        AppContext.MainWindow.RootFrame.Navigate(typeof(LoginPage), "");
-    }
-
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         if (e.Parameter is ValueTuple<SearchEngine.SearchContext, Workshop> t)
         {
             var (context, workshop) = t;
             WorkshopItemGrid.ViewModel.Workshop = workshop;
+            SubscribedItemGrid.ViewModel.Workshop = workshop;
             _ = WorkshopItemGrid.ViewModel.ResetEngineAndFillAsync(new SearchEngine(AppContext.Client, null, context));
+            _ = SubscribedItemGrid.ViewModel.ResetEngineAndFillAsync(new SubscribedEngine(AppContext.Client, null, context.AppId));
         }
         else
         {
             WorkshopItemGrid.ViewModel.Workshop = AppContext.CacheDatabase.GetApp(281990).Result!;
+            SubscribedItemGrid.ViewModel.Workshop = AppContext.CacheDatabase.GetApp(281990).Result!;
             _ = WorkshopItemGrid.ViewModel.ResetEngineAndFillAsync(new SearchEngine(AppContext.Client, null, 281990));
+            _ = SubscribedItemGrid.ViewModel.ResetEngineAndFillAsync(new SubscribedEngine(AppContext.Client, null, 281990));
         }
     }
 

@@ -11,7 +11,7 @@ public class SteamWorkshopClient
 
     private string SessionId { get; }
 
-    private string UserProfileUrl { get; set; }
+    public string UserProfileUrl { get; set; }
 
     private readonly HttpClient _client;
 
@@ -46,6 +46,11 @@ public class SteamWorkshopClient
 
         message.Headers.TryAddWithoutValidation("Cookie", Cookie);
         return await _client.SendAsync(message).ConfigureAwait(false);
+    }
+
+    public async Task<string?> GetUserLink()
+    {
+        return await Parser.ParseUserLink(await GetBody("https://steamcommunity.com/"));
     }
 
     public async Task<HttpResponseMessage> PostRequest(string url, HttpContent content)
@@ -159,7 +164,7 @@ public class SteamWorkshopClient
         var doc = await parser.ParseDocumentAsync(body);
         var pageNum = long.Parse(doc.QuerySelectorAll(".pagelink").Last().TextContent);
 
-        await foreach (var item in Parser.ParseMySubscriptions(body))
+        foreach (var item in await Parser.ParseMySubscriptions(body))
             yield return item;
 
         if (pageNum > 1)
@@ -272,7 +277,7 @@ public class SteamWorkshopClient
         var response = await SendRequest(url);
         var body = await response.Content.ReadAsStringAsync();
 
-        await foreach (var item in Parser.ParseMySubscriptions(body))
+        foreach (var item in await Parser.ParseMySubscriptions(body))
             yield return item;
     }
 
@@ -307,7 +312,7 @@ public class SteamWorkshopClient
         return data?.success ?? 0;
     }
 
-    public async IAsyncEnumerable<WorkshopCollection> GetMyCollectionsAsync(int appId)
+    public async Task<List<WorkshopCollection>> GetMyCollectionsAsync(long? appId = null)
     {
         var response = (await PostRequest("https://steamcommunity.com/sharedfiles/ajaxgetmycollections",
             new FormUrlEncodedContent(new KeyValuePair<string, string>[]
@@ -316,26 +321,53 @@ public class SteamWorkshopClient
                 new("sessionid", SessionId)
             }))).EnsureSuccessStatusCode();
         dynamic data = JsonConvert.DeserializeObject(await response.Content.ReadAsStringAsync() ?? "{}")!;
+        var list = new List<WorkshopCollection>();
         foreach (var item in data.all_collections.publishedfiledetails)
         {
+            int appId1 = item.consumer_appid;
+            string name = item.title;
+            string short_description = item.short_description;
+            string file_url = item.file_url;
+            int favorited = item.favorited;
+            int subscribers = item.subscriptions;
+            int visitors = item.views;
+            string publishedfileid = item.publishedfileid;
+            int time_created = item.time_created;
+            int time_updated = item.time_updated;
             var collection = new WorkshopCollection
             {
-                AppId = appId,
-                Name = item.title,
-                ShortDescription = item.short_description,
-                ImageUrl = item.file_url,
-                Favorites = item.favorited,
-                Subscribers = item.subscriptions,
-                Visitors = item.views,
-                Id = item.publishedfileid,
-                CreatedDate = DateTimeOffset.FromUnixTimeMilliseconds(item.time_created),
-                LastUpdatedDate = DateTimeOffset.FromUnixTimeMilliseconds(item.time_updated),
+                AppId = appId1,
+                Name = name,
+                ShortDescription = short_description,
+                ImageUrl = file_url,
+                Favorites = favorited,
+                Subscribers = subscribers,
+                Visitors = visitors,
+                Id = long.Parse(publishedfileid),
+                CreatedDate = DateTimeOffset.FromUnixTimeMilliseconds(time_created).DateTime,
+                LastUpdatedDate = DateTimeOffset.FromUnixTimeMilliseconds(time_updated).DateTime,
+                IsOnline = true,
             };
-            foreach (var tag in item.tags)
+            var items = new List<(int, long)>();
+            foreach (var child in item.children)
             {
-                collection.Tags.Add(tag.tag);
+                string id = child.publishedfileid;
+                int sortorder = child.sortorder;
+                items.Add((sortorder, long.Parse(id)));
             }
-            yield return collection;
+            collection.Items = items.OrderBy(x => x.Item1).Select(x => x.Item2).ToList();
+            if (item.tags != null)
+            {
+                foreach (var tag in item.tags)
+                {
+                    string t = tag.tag;
+                    collection.Tags.Add(t);
+                }
+            }
+            
+            list.Add(collection);
         }
+
+        return list;
     }
 }

@@ -5,7 +5,6 @@
 /// </summary>
 public record WorkshopItemDetails : WorkshopItem
 {
-
     public string? Description { get; set; }
 
     /// <summary>

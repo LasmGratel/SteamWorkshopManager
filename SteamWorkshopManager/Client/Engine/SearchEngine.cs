@@ -1,13 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Toolkit.Mvvm.ComponentModel;
 using SteamWorkshopManager.Core;
 using SteamWorkshopManager.Util;
 
 namespace SteamWorkshopManager.Client.Engine;
 
-public class SearchEngine : FetchEngine<WorkshopItem>
+public partial class SearchEngine : FetchEngine<WorkshopItem>
 {
     public SearchContext Context { get; set; }
 
@@ -19,7 +21,7 @@ public class SearchEngine : FetchEngine<WorkshopItem>
             SortOptions = sortOptions,
             Trend = trend,
             AppId = appId,
-            Tags = tags ?? Array.Empty<string>(),
+            Tags = new ObservableCollection<string>(tags ?? Array.Empty<string>()),
         };
     }
 
@@ -41,13 +43,23 @@ public class SearchEngine : FetchEngine<WorkshopItem>
         return url;
     }
 
-    public record SearchContext
+    public partial class SearchContext : ObservableObject
     {
-        public long AppId { get; set; }
-        public string SearchText { get; set; } = "";
-        public SortOptions SortOptions { get; set; } = SortOptions.Trend;
-        public int Trend { get; set; } = 7;
-        public IEnumerable<string> Tags { get; set; } = Array.Empty<string>();
+        [ObservableProperty]
+        private long _appId;
+
+        [ObservableProperty]
+        private string _searchText = "";
+
+        [ObservableProperty]
+        private SortOptions _sortOptions = SortOptions.Trend;
+
+        [ObservableProperty]
+        private int _trend = 7;
+
+        [ObservableProperty]
+        private ObservableCollection<string> _tags = new();
+
     }
 
     public class SearchEngineAsyncEnumerator : AbstractFetchEngineAsyncEnumerator<WorkshopItem, SearchEngine>

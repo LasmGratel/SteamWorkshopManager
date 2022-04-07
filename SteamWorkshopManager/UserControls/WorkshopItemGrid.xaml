@@ -49,6 +49,7 @@
                             Margin="20, 0, 0, 0"
                             Width="250"
                             PlaceholderText="Search an item..." SuggestionChosen="SearchBox_OnSuggestionChosen" QuerySubmitted="SearchBox_OnQuerySubmitted"></AutoSuggestBox>
+                        <ComboBox SelectionChanged="SortOptions_OnSelectionChanged" ItemsSource="{x:Bind SortOptionsList}" SelectedItem="{x:Bind ViewModel.SearchContext.SortOptions, Mode=TwoWay}"></ComboBox>
                     </StackPanel>
                 </CommandBar.Content>
                 <CommandBar.PrimaryCommands>
@@ -66,7 +67,6 @@
                 HorizontalAlignment="Stretch"
                 DesiredWidth="340"
                 ItemHeight="160"
-                
                 Margin="20, 0, 0, 0"
                 x:Name="WorkshopItemView"
                 ItemsSource="{x:Bind ViewModel.ItemsView, Mode=OneWay}"
@@ -78,7 +78,8 @@
                     <DataTemplate x:DataType="model:WorkshopItemViewModel">
                         <controls:DockPanel Margin="5"
                                             Tapped="WorkshopItem_OnTapped"
-                                            >
+                                            EffectiveViewportChanged="WorkshopItem_OnEffectiveViewportChanged"
+                        >
                             <controls:DockPanel.Background>
                                 <ImageBrush
                                     Opacity="0.6"
@@ -156,7 +157,7 @@
             </controls:AdaptiveGridView>
             <ContentDialog x:Name="ItemDialog" Visibility="Collapsed" HorizontalAlignment="Stretch">
                 <ContentDialog.ContentTemplate>
-                    <DataTemplate x:DataType="core:WorkshopItemDetails">
+                    <DataTemplate x:DataType="model:WorkshopItemDetailsViewModel">
                         <ScrollViewer MaxHeight="320" Width="480">
                             <StackPanel>
                                 <StackPanel>
@@ -165,7 +166,7 @@
                                               ScrollViewer.VerticalScrollBarVisibility="Disabled"
                                               ScrollViewer.HorizontalScrollMode="Enabled"
                                               ScrollViewer.VerticalScrollMode="Disabled"
-                                              ItemsSource="{x:Bind ScreenshotUrls}"
+                                              ItemsSource="{x:Bind Item.ScreenshotUrls}"
                                               IsItemClickEnabled="True">
                                         <ListView.ItemsPanel>
                                             <ItemsPanelTemplate>
@@ -180,7 +181,7 @@
                                             </DataTemplate>
                                         </ListView.ItemTemplate>
                                     </ListView>
-                                    <Image Stretch="UniformToFill" Source="{x:Bind ImageUrl, Mode=OneWay}"></Image>
+                                    <Image Stretch="UniformToFill" Source="{x:Bind Item.ImageUrl, Mode=OneWay}"></Image>
                                     <controls:DockPanel>
                                         <StackPanel
                                             controls:DockPanel.Dock="Top"
@@ -209,20 +210,17 @@
                                             VerticalAlignment="Bottom"
                                             controls:DockPanel.Dock="Bottom"
                                             Margin="15, 0, 0, 5">
-                                            <TextBlock Text="{x:Bind Name}" Foreground="White"></TextBlock>
-                                            <TextBlock Text="{x:Bind Id}" FontWeight="Light" Foreground="White"></TextBlock>
+                                            <TextBlock Text="{x:Bind Item.Name}" Foreground="White"></TextBlock>
+                                            <TextBlock Text="{x:Bind Item.Id}" FontWeight="Light" Foreground="White"></TextBlock>
                                             <controls:DockPanel>
-                                                <RatingControl HorizontalAlignment="Left" IsReadOnly="True" PlaceholderValue="{x:Bind Stars}"></RatingControl>
-                                                <HyperlinkButton Content="Open in Browser" NavigateUri="{x:Bind Url}" HorizontalAlignment="Right"></HyperlinkButton>
+                                                <RatingControl HorizontalAlignment="Left" IsReadOnly="True" PlaceholderValue="{x:Bind Item.Stars}"></RatingControl>
+                                                <HyperlinkButton Content="Open in Browser" NavigateUri="{x:Bind Item.Url}" HorizontalAlignment="Right"></HyperlinkButton>
                                             </controls:DockPanel>
                                         </StackPanel>
                                     </controls:DockPanel>
                                 </StackPanel>
                                 <StackPanel controls:DockPanel.Dock="Bottom">
-
-                                    <RichTextBlock ui:Properties.Html="{x:Bind Description, Mode=OneWay}" TextWrapping="Wrap">
-
-                                    </RichTextBlock>
+                                    <controls:MarkdownTextBlock TextWrapping="WrapWholeWords" Text="{x:Bind DescriptionMarkdown, Mode=OneWay}" LinkClicked="MarkdownTextBlock_OnLinkClicked"></controls:MarkdownTextBlock>
                                 </StackPanel>
                             </StackPanel>
                         </ScrollViewer>

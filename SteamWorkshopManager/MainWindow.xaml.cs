@@ -57,7 +57,7 @@ public sealed partial class MainWindow : Window
             }
         };
         await proxy.StartProxy();
-        if ((AppContext.SessionContainer.Values["Cookie"]?.ToString()?.Trim() ?? "") == "")
+        if ((AppContext.Settings.Cookie?.Trim() ?? "") == "")
             RootFrame.Navigate(typeof(LoginPage));
         else
             RootFrame.Navigate(typeof(MainPage));

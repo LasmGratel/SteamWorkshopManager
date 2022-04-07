@@ -19,16 +19,19 @@ public static partial class AppContext
     public static MainWindow MainWindow;
 
     public static SteamWorkshopClient Client => new SteamWorkshopClient(
-        SessionContainer.Values["Cookie"]?.ToString(),
-        SessionContainer.Values["UserLink"]?.ToString(),
+        Settings.Cookie,
+        Settings.UserLink,
         new HttpClientHandler
-        {
-            Proxy = new WebProxy($"http://127.0.0.1:{App.Instance.AppHost.Services.GetRequiredService<IHttpProxyService>().ProxyPort}"),
+        {//{App.Instance.AppHost.Services.GetRequiredService<IHttpProxyService>().ProxyPort}
+            Proxy = new WebProxy($"http://127.0.0.1:8118"),
             UseCookies = false
         });
 
+    public static AppSettings Settings => new(SessionContainer);
+
     public static WorkshopItemDatabase ItemDatabase => new(App.Instance.AppServicesScope.ServiceProvider.GetService(typeof(LiteDatabase)) as LiteDatabase, Client);
     public static CacheDatabase CacheDatabase => new(App.Instance.AppServicesScope.ServiceProvider.GetService(typeof(LiteDatabase)) as LiteDatabase, Client);
+    public static CollectionDatabase CollectionDatabase => new(App.Instance.AppServicesScope.ServiceProvider.GetService(typeof(LiteDatabase)) as LiteDatabase, Client);
 
     public static CoreDispatcher Dispatcher => MainWindow.CoreWindow.Dispatcher;
 
@@ -47,5 +50,6 @@ public static partial class AppContext
         }
 
         SessionContainer = ApplicationData.Current.LocalSettings.Containers[SessionContainerKey];
+        _ = Settings; // Create instance now
     }
 }

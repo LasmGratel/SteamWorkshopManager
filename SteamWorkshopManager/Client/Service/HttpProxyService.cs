@@ -177,11 +177,6 @@ public sealed class HttpProxyService : IHttpProxyService
 
     private async Task OnRequest(object sender, SessionEventArgs e)
     {
-#if DEBUG
-        Debug.WriteLine("OnRequest " + e.HttpClient.Request.RequestUri.AbsoluteUri);
-        Debug.WriteLine("OnRequest HTTP " + e.HttpClient.Request.HttpVersion);
-        Debug.WriteLine("ClientRemoteEndPoint " + e.ClientRemoteEndPoint.ToString());
-#endif
         if (e.HttpClient.Request.Host == null) return;
 
         if (e.HttpClient.Request.Host.Contains(IHttpProxyService.LocalDomain, StringComparison.OrdinalIgnoreCase))
@@ -258,10 +253,6 @@ public sealed class HttpProxyService : IHttpProxyService
 
                     if (e.HttpClient.ConnectRequest?.ClientHelloInfo?.Extensions != null)
                     {
-#if DEBUG
-                        //Logger.Info("ClientHelloInfo Info: " + e.HttpClient.ConnectRequest.ClientHelloInfo);
-                        Debug.WriteLine("ClientHelloInfo Info: " + e.HttpClient.ConnectRequest.ClientHelloInfo);
-#endif
                         if (!string.IsNullOrEmpty(item.ServerName))
                         {
                             var sni = e.HttpClient.ConnectRequest.ClientHelloInfo.Extensions["server_name"];

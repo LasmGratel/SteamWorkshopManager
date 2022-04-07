@@ -1,5 +1,7 @@
 ﻿using System.Globalization;
+using System.IO.Compression;
 using AngleSharp;
+using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using AngleSharp.Text;
 using AngleSharp.Xhtml;
@@ -10,6 +12,26 @@ namespace SteamWorkshopManager.Core;
 public static class Parser
 {
     private const string DateFormat = "d MMM, yyyy @ h:mtt";
+
+    public static async Task<WorkshopCollection> ParseIronyModCollection(Stream fileStream)
+    {
+        using var zip = new ZipArchive(fileStream);
+        await using var stream = zip.GetEntry("exported.json")?.Open();
+
+        if (stream == null) throw new FileNotFoundException("exported.json not found in zip file");
+
+        using var reader = new StreamReader(stream);
+        return JsonConvert.DeserializeObject<IronyModCollection>(await reader.ReadToEndAsync())!.ToCollection();
+
+    }
+
+
+    public static async Task<string?> ParseUserLink(string source)
+    {
+        var parser = new HtmlParser();
+        var doc = await parser.ParseDocumentAsync(source);
+        return doc.QuerySelector("a.user_avatar")?.GetAttribute("href")?[..^1];
+    }
 
     public static async Task<List<Workshop>> ParseWorkshops(string source)
     {
@@ -74,12 +96,13 @@ public static class Parser
     /// </summary>
     /// <param name="source"></param>
     /// <returns></returns>
-    public static async IAsyncEnumerable<WorkshopItem> ParseMySubscriptions(string source)
+    public static async Task<List<WorkshopItem>> ParseMySubscriptions(string source)
     {
         var parser = new HtmlParser();
         var doc = await parser.ParseDocumentAsync(source);
 
         var items = doc.GetElementsByClassName("workshopItemSubscription").Where(x => x.Id != null && x.Id.StartsWith("Subscription"));
+        var list = new List<WorkshopItem>();
         foreach (var item in items)
         {
             var id = item.Id!.Replace("Subscription", "");
@@ -90,8 +113,7 @@ public static class Parser
             var lastUpdatedDate = dates.Last().TextContent.ReplaceFirst("Last Updated ", "");
             var imageUrl = item.QuerySelector(".backgroundImg")?.GetAttribute("src");
             var favorited = item.QuerySelector(".favorite")?.ClassList.Contains("toggled") ?? false;
-
-            yield return new WorkshopItem
+            list.Add(new WorkshopItem
             {
                 AppId = long.Parse(app),
                 Id = long.Parse(id),
@@ -101,8 +123,10 @@ public static class Parser
                 Favorited = favorited,
                 SubscribedDate = ParseSteamDateTime(subscribedDate),
                 LastUpdatedDate = ParseSteamDateTime(lastUpdatedDate)
-            };
+            });
         }
+
+        return list;
     }
 
     public static WorkshopItem ParseWorkshopItem()

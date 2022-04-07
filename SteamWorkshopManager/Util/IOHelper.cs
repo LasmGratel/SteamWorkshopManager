@@ -1,11 +1,14 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage;
 using Windows.Storage.Streams;
+using SteamWorkshopManager.Client.Engine;
+using SteamWorkshopManager.Core;
 
 namespace SteamWorkshopManager.Util;
 
@@ -74,6 +77,21 @@ public static class IOHelper
                 bufferSize = 1024;
             }
             return new StreamWriter(stream, encoding, bufferSize, leaveOpen);
+        }
+    }
+
+    public static async Task<Result<string>> GetResponseAsync(this SteamWorkshopClient client, string url)
+    {
+        try
+        {
+            var response = await client.SendRequest(url).ConfigureAwait(false);
+            if (!response.IsSuccessStatusCode)
+                return Result<string>.OfFailure(new HttpRequestException("HTTP " + response.StatusCode));
+            return Result<string>.OfSuccess(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+        }
+        catch (HttpRequestException e)
+        {
+            return Result<string>.OfFailure(e);
         }
     }
 }

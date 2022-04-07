@@ -13,9 +13,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="Assets\IronyModManager.png" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Controls\CardControl.xaml" />
     <None Remove="Pages\AppsPage.xaml" />
     <None Remove="Pages\CollectionsPage.xaml" />
+    <None Remove="Pages\CollectionViewerPage.xaml" />
     <None Remove="Pages\HomePage.xaml" />
     <None Remove="Pages\LoginPage.xaml" />
     <None Remove="Pages\MainPage.xaml" />
@@ -27,7 +31,7 @@
 
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
-    <Content Include="Assets\LockScreenLogo.scale-200.png" />
+    <EmbeddedResource Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.scale-200.png" />
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
@@ -36,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Assets\IronyModManager.png" />
     <EmbeddedResource Include="RichTextBlockHtml2Xaml.xslt" />
   </ItemGroup>
 
@@ -56,6 +61,7 @@
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.1" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.194" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="ReverseMarkdown" Version="3.23.0" />
     <PackageReference Include="SuffixTreeSharp" Version="1.0.0" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
@@ -69,6 +75,11 @@
   <ItemGroup>
     <ProjectReference Include="..\SteamWorkshopManager.Core\SteamWorkshopManager.Core.csproj" />
     <ProjectReference Include="..\Titanium-Web-Proxy\src\Titanium.Web.Proxy\Titanium.Web.Proxy.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Pages\CollectionViewerPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Pages\WorkshopItemPage.xaml">

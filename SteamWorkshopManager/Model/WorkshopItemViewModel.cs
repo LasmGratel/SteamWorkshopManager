@@ -89,4 +89,22 @@ public partial class WorkshopItemViewModel : ObservableObject, IDisposable
         Subscribed = false;
         return AppContext.Client.PostFileUnsubscribeAsync(Item.AppId, Item.Id);
     }
+
+    protected bool Equals(WorkshopItemViewModel other)
+    {
+        return Item.Equals(other.Item);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        if (obj.GetType() != this.GetType()) return false;
+        return Equals((WorkshopItemViewModel)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return Item.GetHashCode();
+    }
 }

@@ -4,10 +4,12 @@ using System;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using CommunityToolkit.WinUI.Helpers;
 using IdentityModel.OidcClient;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Web.WebView2.Core;
 using SteamWorkshopManager.Client.Service;
+using SteamWorkshopManager.Core;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -28,17 +30,6 @@ public sealed partial class LoginPage : Page
 
     private async Task CoreWebView2OnDOMContentLoaded(CoreWebView2 sender, CoreWebView2DOMContentLoadedEventArgs args)
     {
-        if (LoginWebView.Source.ToString().Contains("myworkshopfiles"))
-        {
-            // Login complete
-            AppContext.SessionContainer.Values["Cookie"] = (await LoginWebView.CoreWebView2.ExecuteScriptAsync("document.cookie"))[1..^1]; // Fucking tailing quote
-
-            var userLink = await LoginWebView.CoreWebView2.ExecuteScriptAsync(@"jQuery(""a.user_avatar"").attr(""href"")");
-            
-
-            AppContext.SessionContainer.Values["UserLink"] = userLink[1..^2]; // Remove tailing slash and quote
-            Frame.Navigate(typeof(MainPage));
-        }
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -72,13 +63,13 @@ public sealed partial class LoginPage : Page
             {
                 await LoginWebView.CoreWebView2.ExecuteScriptAsync("document.cookie = \"" + e.Parameter + "\"");
                 //LoginWebView.Source = new Uri(state.StartUrl);
-                LoginWebView.Source = new Uri("https://steamcommunity.com/login/home/?l=english&goto=%2Fid%2F123%2Fmyworkshopfiles%3Fbrowsefilter%3Dmysubscriptions%26sortmethod%3Dsubscriptiondate%26section%3Ditems%26appid%3D255710%26p%3D1%26numperpage%3D10");
+                LoginWebView.Source = new Uri("https://steamcommunity.com/login/home/?l=english&goto=/app/281990");
             });
         }
         else
         {
             //LoginWebView.Source = new Uri(state.StartUrl);
-            LoginWebView.Source = new Uri("https://steamcommunity.com/login/home/?l=english&goto=%2Fid%2F123%2Fmyworkshopfiles%3Fbrowsefilter%3Dmysubscriptions%26sortmethod%3Dsubscriptiondate%26section%3Ditems%26appid%3D255710%26p%3D1%26numperpage%3D10");
+            LoginWebView.Source = new Uri("https://steamcommunity.com/login/home/?l=english&goto=/app/281990");
         }
     }
 
@@ -87,6 +78,15 @@ public sealed partial class LoginPage : Page
         LoginWebView.CoreWebView2.DOMContentLoaded += (view2, args) =>
         {
             _ = CoreWebView2OnDOMContentLoaded(view2, args);
+        };
+        LoginWebView.CoreWebView2.WebResourceResponseReceived += (view2, eventArgs) =>
+        {
+            var header = eventArgs.Request.Headers;
+            if (eventArgs.Request.Uri == "https://steamcommunity.com/app/281990")
+            {
+                AppContext.Settings.Cookie = header.GetHeader("Cookie");
+                Frame.Navigate(typeof(MainPage));
+            }
         };
         LoginWebView.CoreWebView2.WebResourceRequested += (view2, eventArgs) =>
         {

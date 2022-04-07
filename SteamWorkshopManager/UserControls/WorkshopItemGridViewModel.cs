@@ -26,7 +26,9 @@ public partial class WorkshopItemGridViewModel : ObservableObject, IDisposable, 
         set
         {
             SetProperty(ref _workshop, value);
-            Tags = new ObservableCollection<WorkshopItemTagViewModel>(value.Tags.Select(x => new WorkshopItemTagViewModel(x)));
+
+            if (_workshop != value || Tags.Count == 0)
+                Tags = new ObservableCollection<WorkshopItemTagViewModel>(value.Tags.Select(x => new WorkshopItemTagViewModel(x)));
         }
     }
 
@@ -42,7 +44,10 @@ public partial class WorkshopItemGridViewModel : ObservableObject, IDisposable, 
     private bool _hasItemSelected;
 
     [ObservableProperty]
-    private SearchEngine.SearchContext _searchContext;
+    private SearchEngine.SearchContext _searchContext = new();
+
+    [ObservableProperty]
+    private bool _isLoading;
 
     public GeneralizedSuffixTree SearchTree = new();
 
@@ -68,6 +73,12 @@ public partial class WorkshopItemGridViewModel : ObservableObject, IDisposable, 
             ItemsView.Source = _viewModels;
             RebuildSearchTree();
         }
+    }
+
+    public IncrementalLoadingCollection<FetchEngineIncrementalSource<WorkshopItem, WorkshopItemViewModel>, WorkshopItemViewModel>? IncrementalCollection
+    {
+        get;
+        set;
     }
 
     public AdvancedCollectionView ItemsView { get; set; }
@@ -102,11 +113,22 @@ public partial class WorkshopItemGridViewModel : ObservableObject, IDisposable, 
         }
     }
 
+    public async Task LoadMoreItemsAsync(uint count = 20)
+    {
+        if (!IsLoading && IncrementalCollection != null)
+        {
+            IsLoading = true;
+            await IncrementalCollection.LoadMoreItemsAsync(count);
+            ViewModels.AddRange(IncrementalCollection.Skip(ViewModels.Count));
+            IsLoading = false;
+        }
+    }
+
     public async Task ResetEngineAndFillAsync(FetchEngine<WorkshopItem?>? newEngine, int? itemLimit = null)
     {
         DisposeCurrent();
         RefreshWorkshop();
-        var itemAdded = new HashSet<long>();
+        /*var itemAdded = new HashSet<long>();
         _controller.FetchEngine = newEngine!;
 
         SearchTree = new GeneralizedSuffixTree();
@@ -123,8 +145,8 @@ public partial class WorkshopItemGridViewModel : ObservableObject, IDisposable, 
                 itemAdded.Add(x.Id);
                 ViewModels.Add(new WorkshopItemViewModel(x));
             }
-        }
-        //HasNoItems = !await _controller.ResetAndFillAsync(newEngine, itemLimit);
+        }*/
+        HasNoItems = !await _controller.ResetAndFillAsync(newEngine, itemLimit);
     }
 
     public async void RefreshWorkshop()

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Specialized;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.WinUI;
 using SteamWorkshopManager.Client.Engine;
 using SteamWorkshopManager.Core;
 using SteamWorkshopManager.Model;
+using SteamWorkshopManager.Util;
 
 namespace SteamWorkshopManager.UserControls;
 
@@ -25,9 +27,10 @@ public class WorkshopItemVisualizationController
     {
         if (FetchEngine == null) return false;
         var collection = new Util.IncrementalLoadingCollection<FetchEngineIncrementalSource<WorkshopItem, WorkshopItemViewModel>, WorkshopItemViewModel>(new WorkshopItemFetchEngineIncrementalSource(FetchEngine!, itemsLimit));
-        _visualizer.ViewModels = collection;
-        await collection.LoadMoreItemsAsync(20).AsTask().ConfigureAwait(false);
-        _visualizer.ViewModels.CollectionChanged += CollectionChanged;
+        _visualizer.IncrementalCollection = collection;
+        await collection.LoadMoreItemsAsync(20);
+        _visualizer.ViewModels.AddRange(_visualizer.IncrementalCollection);
+        //_visualizer.ViewModels.CollectionChanged += CollectionChanged;
         return _visualizer.ViewModels.Count > 0;
     }
 

@@ -5,10 +5,40 @@
     xmlns:local="using:SteamWorkshopManager.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:model="using:SteamWorkshopManager.Model"
+    xmlns:ui="using:SteamWorkshopManager.Util.UI"
     mc:Ignorable="d"
+    Loaded="CollectionsPage_OnLoaded"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-
-    </Grid>
+    <Pivot>
+        <PivotItem Header="Personal">
+            <controls:DockPanel>
+                <CommandBar controls:DockPanel.Dock="Top" DefaultLabelPosition="Right">
+                    <CommandBar.PrimaryCommands>
+                        <AppBarButton Label="Clear all" Icon="{ui:FontIcon Glyph=ClearE894}"></AppBarButton>
+                        <AppBarButton Label="Import" Icon="{ui:FontIcon Glyph=ImportE8B5}" Click="Import_OnClicked"></AppBarButton>
+                    </CommandBar.PrimaryCommands>
+                </CommandBar>
+                <ListView controls:DockPanel.Dock="Bottom" SelectionMode="Extended" ItemsSource="{x:Bind ViewModel.CollectionView, Mode=OneWay}">
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="model:WorkshopCollectionViewModel">
+                            <Grid Tapped="Collection_OnTapped">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Image Source="{x:Bind Collection.ImageUrl, Mode=OneWay}" Width="100" Height="100"></Image>
+                                <TextBlock Margin="20" Grid.Column="1" Text="{x:Bind Collection.Name, Mode=OneWay}"></TextBlock>
+                            </Grid>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </controls:DockPanel>
+        </PivotItem>
+        <PivotItem Header="Favorite">
+        </PivotItem>
+    </Pivot>
 </Page>

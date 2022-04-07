@@ -2,7 +2,9 @@
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using Windows.System;
 using CommunityToolkit.WinUI.UI.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using SteamWorkshopManager.Client.Engine;
@@ -48,7 +50,7 @@ namespace SteamWorkshopManager.UserControls
         private async void WorkshopItem_OnTapped(object sender, TappedRoutedEventArgs e)
         {
             e.Handled = true;
-            ItemDialog.Content = await AppContext.ItemDatabase.GetItem(sender.GetDataContext<WorkshopItemViewModel>().Item.Id);
+            ItemDialog.Content = new WorkshopItemDetailsViewModel(await AppContext.ItemDatabase.GetItem(sender.GetDataContext<WorkshopItemViewModel>().Item.Id));
             ItemDialog.Visibility = Visibility.Visible;
             await ItemDialog.ShowAsync();
         }
@@ -90,6 +92,7 @@ namespace SteamWorkshopManager.UserControls
 
         private void UpdateSearch(string? criteria)
         {
+            ViewModel.SearchContext.AppId = ViewModel.Workshop.AppId;
             ViewModel.SearchContext.SearchText = criteria ?? "";
             _ = ViewModel.ResetEngineAndFillAsync(new SearchEngine(AppContext.Client, null, ViewModel.SearchContext));
         }
@@ -128,7 +131,9 @@ namespace SteamWorkshopManager.UserControls
         private void SubmitTags_OnClicked(object sender, RoutedEventArgs e)
         {
             var tags = ViewModel.Tags.Where(x => x.Selected).Select(x => x.Tag.Name);
-            ViewModel.SearchContext.Tags = tags;
+            ViewModel.SearchContext.AppId = ViewModel.Workshop.AppId;
+            ViewModel.SearchContext.Tags.Clear();
+            ViewModel.SearchContext.Tags.AddRange(tags);
             _ = ViewModel.ResetEngineAndFillAsync(new SearchEngine(AppContext.Client, null, ViewModel.SearchContext));
         }
 
@@ -138,9 +143,44 @@ namespace SteamWorkshopManager.UserControls
             var tags = ViewModel.Tags.Where(x => x.Selected);
             if (tags.Any())
             {
-                ViewModel.SearchContext.Tags = Array.Empty<string>();
+                ViewModel.SearchContext.AppId = ViewModel.Workshop.AppId;
+                ViewModel.SearchContext.Tags.Clear();
             }
             tags.ForEach(x => x.Selected = false);
+        }
+
+        private async void MarkdownTextBlock_OnLinkClicked(object? sender, LinkClickedEventArgs e)
+        {
+            if (Uri.TryCreate(e.Link, UriKind.Absolute, out var link))
+            {
+                await Launcher.LaunchUriAsync(link);
+            }
+        }
+
+        private void WorkshopItem_OnEffectiveViewportChanged(FrameworkElement sender, EffectiveViewportChangedEventArgs args)
+        {
+            var model = sender.GetDataContext<WorkshopItemViewModel>();
+            if (ViewModel.ItemsView.Count > 0 && Equals(model, ViewModel.ItemsView.Last()))
+            {
+                var y = args.BringIntoViewDistanceY;
+                if (y <= sender.ActualHeight * 2)
+                {
+                    _ = ViewModel.LoadMoreItemsAsync(50);
+                }
+            }
+        }
+
+        public List<SortOptions> SortOptionsList => new(Enum.GetValues<SortOptions>());
+        private SortOptions _currentSortOptions = SortOptions.Trend;
+
+        private void SortOptions_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ViewModel.SearchContext.SortOptions != _currentSortOptions)
+            {
+                _currentSortOptions = ViewModel.SearchContext.SortOptions;
+                ViewModel.SearchContext.AppId = ViewModel.Workshop.AppId;
+                _ = ViewModel.ResetEngineAndFillAsync(new SearchEngine(AppContext.Client, null, ViewModel.SearchContext));
+            }
         }
     }
 }

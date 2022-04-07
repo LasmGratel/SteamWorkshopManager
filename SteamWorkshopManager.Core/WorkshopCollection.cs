@@ -1,7 +1,10 @@
-﻿namespace SteamWorkshopManager.Core;
+﻿using LiteDB;
+
+namespace SteamWorkshopManager.Core;
 
 public record WorkshopCollection
 {
+    [BsonId(true)]
     public long Id { get; set; }
 
     public string? ImageUrl { get; set; }
@@ -25,4 +28,8 @@ public record WorkshopCollection
     public long Favorites { get; set; }
 
     public List<string> Tags { get; set; } = new();
+
+    public List<long> Items { get; set; } = new();
+
+    public bool IsOnline { get; set; }
 }

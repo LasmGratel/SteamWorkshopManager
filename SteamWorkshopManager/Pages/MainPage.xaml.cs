@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Core;
 using Microsoft.UI.Xaml.Media.Animation;
@@ -42,6 +43,14 @@ public sealed partial class MainPage : Page
 
     private void NavView_Loaded(object sender, RoutedEventArgs e)
     {
+        if (AppContext.Settings.UserLink?.Equals("") ?? true)
+        {
+            _ = Task.Run(async () =>
+            {
+                AppContext.Settings.UserLink = await AppContext.Client.GetUserLink();
+            });
+        }
+
         // You can also add items in code.
         /*NavView.MenuItems.Add(new NavigationViewItemSeparator());
         NavView.MenuItems.Add(new NavigationViewItem

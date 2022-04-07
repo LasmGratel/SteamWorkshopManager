@@ -14,6 +14,13 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <controls:DockPanel>
-        <userControls:WorkshopItemGrid x:Name="WorkshopItemGrid"></userControls:WorkshopItemGrid>
+        <Pivot Title="{x:Bind WorkshopItemGrid.ViewModel.Workshop.Name, Mode=OneWay}">
+            <PivotItem Header="All">
+                <userControls:WorkshopItemGrid x:Name="WorkshopItemGrid"></userControls:WorkshopItemGrid>
+            </PivotItem>
+            <PivotItem Header="Subscribed">
+                <userControls:WorkshopItemGrid x:Name="SubscribedItemGrid"></userControls:WorkshopItemGrid>
+            </PivotItem>
+        </Pivot>
     </controls:DockPanel>
 </Page>

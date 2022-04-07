@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -10,20 +11,33 @@ namespace SteamWorkshopManager.Pages;
 /// </summary>
 public sealed partial class SettingsPage : Page
 {
-    public string Cookie
+    public string? Cookie
     {
-        get => AppContext.SessionContainer.Values["Cookie"].ToString();
-        set => AppContext.SessionContainer.Values["Cookie"] = value;
+        get => AppContext.Settings.Cookie;
+        set => AppContext.Settings.Cookie = value;
     }
 
-    public string UserLink
+    public string? UserLink
     {
-        get => AppContext.SessionContainer.Values["UserLink"].ToString();
-        set => AppContext.SessionContainer.Values["UserLink"] = value;
+        get => AppContext.Settings.UserLink;
+        set => AppContext.Settings.UserLink = value;
     }
 
     public SettingsPage()
     {
         this.InitializeComponent();
+    }
+
+    private void RefreshLogin_OnClick(object sender, RoutedEventArgs e)
+    {
+        AppContext.MainWindow.RootFrame.Navigate(typeof(LoginPage), AppContext.Settings.Cookie);
+
+    }
+
+    private void LogoutButton_OnClick(object sender, RoutedEventArgs e)
+    {
+        AppContext.SessionContainer.Values.Remove("Cookie");
+        AppContext.SessionContainer.Values.Remove("UserLink");
+        AppContext.MainWindow.RootFrame.Navigate(typeof(LoginPage), "");
     }
 }
