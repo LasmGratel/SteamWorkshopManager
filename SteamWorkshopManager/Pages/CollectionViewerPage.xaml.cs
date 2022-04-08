@@ -16,6 +16,7 @@ using Windows.Foundation.Collections;
 using SteamWorkshopManager.Client.Engine;
 using SteamWorkshopManager.Core;
 using SteamWorkshopManager.Model;
+using SteamWorkshopManager.Util;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -32,14 +33,33 @@ namespace SteamWorkshopManager.Pages
             this.InitializeComponent();
         }
 
+        public async Task LoadItems(WorkshopCollection collection)
+        {
+            WorkshopItemGrid.ViewModel.ViewModels.AddRange(
+                (await Task.WhenAll(collection.Items.Select(id => AppContext.ItemDatabase.GetItem(id)).Where(x => !x.IsFaulted)))
+                .Where(x => x != null)
+                .Select(
+                    x =>
+                    {
+                        return new WorkshopItemViewModel(x);
+                    })
+                );
+        }
+
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             if (e.Parameter is WorkshopCollection collection)
             {
                 WorkshopItemGrid.ViewModel.Workshop = AppContext.CacheDatabase.GetApp(collection.AppId).Result!;
-                _ = WorkshopItemGrid.ViewModel.ResetEngineAndFillAsync(new CollectionEngine(AppContext.Client, null, collection.Items));
+                _ = LoadItems(collection);
 
             }
+        }
+
+        private void SelectAll_OnClick(object sender, RoutedEventArgs e)
+        {
+            WorkshopItemGrid.ViewModel.ViewModels.ForEach(x => x.Selected = true);
+            WorkshopItemGrid.ViewModel.SelectedViewModels.AddRange(WorkshopItemGrid.ViewModel.ViewModels);
         }
     }
 }

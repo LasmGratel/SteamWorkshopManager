@@ -4,6 +4,7 @@ using Windows.Storage;
 using Windows.UI.Core;
 using LiteDB;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml.Controls;
 using SteamWorkshopManager.Client.Service;
 using SteamWorkshopManager.Core;
 using SteamWorkshopManager.Database;
@@ -18,12 +19,14 @@ public static partial class AppContext
     public static readonly ApplicationDataContainer SessionContainer;
     public static MainWindow MainWindow;
 
+    public static NavigationView? MainNavigationView;
+
     public static SteamWorkshopClient Client => new SteamWorkshopClient(
         Settings.Cookie,
         Settings.UserLink,
         new HttpClientHandler
-        {//{App.Instance.AppHost.Services.GetRequiredService<IHttpProxyService>().ProxyPort}
-            Proxy = new WebProxy($"http://127.0.0.1:8118"),
+        {//
+            Proxy = new WebProxy($"http://127.0.0.1:{App.Instance.AppHost.Services.GetRequiredService<IHttpProxyService>().ProxyPort}"),
             UseCookies = false
         });
 

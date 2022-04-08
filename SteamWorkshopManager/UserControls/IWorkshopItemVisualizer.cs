@@ -15,5 +15,4 @@ public interface IWorkshopItemVisualizer
 
     ObservableCollection<WorkshopItemViewModel> ViewModels { get; set; }
 
-    IncrementalLoadingCollection<FetchEngineIncrementalSource<WorkshopItem, WorkshopItemViewModel>, WorkshopItemViewModel> IncrementalCollection { get; set; }
 }

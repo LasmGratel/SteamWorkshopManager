@@ -1,4 +1,6 @@
-﻿namespace SteamWorkshopManager.Core;
+﻿using LiteDB;
+
+namespace SteamWorkshopManager.Core;
 
 /// <summary>
 /// Detailed information about workshop item, can only be fetched from workshop/filedetails/?id

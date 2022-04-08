@@ -75,12 +75,6 @@ public partial class WorkshopItemGridViewModel : ObservableObject, IDisposable, 
         }
     }
 
-    public IncrementalLoadingCollection<FetchEngineIncrementalSource<WorkshopItem, WorkshopItemViewModel>, WorkshopItemViewModel>? IncrementalCollection
-    {
-        get;
-        set;
-    }
-
     public AdvancedCollectionView ItemsView { get; set; }
 
     public ObservableCollection<WorkshopItemViewModel> SelectedViewModels { get; set; }
@@ -110,17 +104,6 @@ public partial class WorkshopItemGridViewModel : ObservableObject, IDisposable, 
         for (var i = 0; i < ViewModels.Count; i++)
         {
             SearchTree.Put(ViewModels[i].Item.Name.ToLower(), i);
-        }
-    }
-
-    public async Task LoadMoreItemsAsync(uint count = 20)
-    {
-        if (!IsLoading && IncrementalCollection != null)
-        {
-            IsLoading = true;
-            await IncrementalCollection.LoadMoreItemsAsync(count);
-            ViewModels.AddRange(IncrementalCollection.Skip(ViewModels.Count));
-            IsLoading = false;
         }
     }
 

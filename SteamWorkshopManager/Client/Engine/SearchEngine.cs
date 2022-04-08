@@ -88,12 +88,12 @@ public partial class SearchEngine : FetchEngine<WorkshopItem>
                     break;
             }
 
-            switch (await GetResponseAsync(FetchEngine.BuildRequestUrl(CurrentPage)).ConfigureAwait(false))
+            switch (await GetResponseAsync(FetchEngine.BuildRequestUrl(CurrentPage)))
             {
                 case Result<string>.Success(var response):
                     if (!response.Contains("no_items") && !FetchEngine.EngineHandle.IsCancelled)
                     {
-                        var (result, tags) = await Parser.ParseSearchResult(response).ConfigureAwait(false);
+                        var (result, tags) = await Parser.ParseSearchResult(response);
                         AppContext.CacheDatabase.UpdateTags(FetchEngine.Context.AppId, tags);
                         CurrentEntityEnumerator = result.GetEnumerator();
                         return true;

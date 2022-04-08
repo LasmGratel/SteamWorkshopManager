@@ -218,11 +218,11 @@ public static class Parser
     {
         try
         {
-            return DateTime.ParseExact(s, DateFormat, new CultureInfo("en-US"));
+            return DateTime.ParseExact(s.Replace(" @", $", {DateTime.Now.Year} @"), DateFormat, new CultureInfo("en-US"));
         }
         catch (FormatException)
         {
-            return DateTime.ParseExact(s.Replace(" @", $", {DateTime.Now.Year} @"), DateFormat, new CultureInfo("en-US"));
+            return DateTime.ParseExact(s, DateFormat, new CultureInfo("en-US"));
         }
     }
 }

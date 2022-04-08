@@ -12,6 +12,7 @@
     xmlns:model="using:SteamWorkshopManager.Model"
     xmlns:converters1="using:CommunityToolkit.WinUI.UI.Converters"
     xmlns:system="using:System"
+    Loaded="WorkshopItemGrid_OnLoaded"
     mc:Ignorable="d">
 
     <UserControl.Resources>
@@ -40,7 +41,7 @@
             
         </SplitView.Pane>
         <controls:DockPanel>
-            <CommandBar controls:DockPanel.Dock="Top" DefaultLabelPosition="Right" VerticalAlignment="Center" VerticalContentAlignment="Center">
+            <CommandBar x:Name="CommandBar" x:FieldModifier="public" controls:DockPanel.Dock="Top" DefaultLabelPosition="Right" VerticalAlignment="Center" VerticalContentAlignment="Center">
                 <CommandBar.Content>
                     <StackPanel Orientation="Horizontal">
                         <AutoSuggestBox

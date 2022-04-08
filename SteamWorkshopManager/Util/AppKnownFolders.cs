@@ -31,10 +31,6 @@ public class AppKnownFolders
         return new AppKnownFolders(await folder.Self.GetOrCreateFolderAsync(subfolderName));
     }
 
-    public static async Task InitializeAsync()
-    {
-    }
-
     public static IAsyncOperation<StorageFile> CreateTemporaryFileWithRandomNameAsync(string? extension = null)
     {
         return Temporary.CreateFileAsync($"{Guid.NewGuid()}.{extension ?? "temp"}");

@@ -23,14 +23,13 @@ public class WorkshopItemVisualizationController
         _visualizer = visualizer;
     }
 
-    public async Task<bool> FillAsync(int? itemsLimit = null)
+    public async ValueTask<bool> FillAsync(int? itemsLimit = null)
     {
         if (FetchEngine == null) return false;
-        var collection = new Util.IncrementalLoadingCollection<FetchEngineIncrementalSource<WorkshopItem, WorkshopItemViewModel>, WorkshopItemViewModel>(new WorkshopItemFetchEngineIncrementalSource(FetchEngine!, itemsLimit));
-        _visualizer.IncrementalCollection = collection;
+        var collection = new IncrementalLoadingCollection<FetchEngineIncrementalSource<WorkshopItem, WorkshopItemViewModel>, WorkshopItemViewModel>(new WorkshopItemFetchEngineIncrementalSource(FetchEngine!, itemsLimit));
+        _visualizer.ViewModels = collection;
         await collection.LoadMoreItemsAsync(20);
-        _visualizer.ViewModels.AddRange(_visualizer.IncrementalCollection);
-        //_visualizer.ViewModels.CollectionChanged += CollectionChanged;
+        _visualizer.ViewModels.CollectionChanged += CollectionChanged;
         return _visualizer.ViewModels.Count > 0;
     }
 
@@ -40,12 +39,12 @@ public class WorkshopItemVisualizationController
         await FillAsync(itemsLimit);
     }
 
-    public async Task<bool> ResetAndFillAsync(FetchEngine<WorkshopItem?>? newEngine, int? itemLimit = null)
+    public ValueTask<bool> ResetAndFillAsync(FetchEngine<WorkshopItem?>? newEngine, int? itemLimit = null)
     {
         FetchEngine?.EngineHandle.Cancel();
         _visualizer.DisposeCurrent();
         FetchEngine = newEngine;
-        return await FillAsync(itemLimit);
+        return FillAsync(itemLimit);
     }
 
     public void Dispose()

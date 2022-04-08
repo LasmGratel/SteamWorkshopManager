@@ -71,14 +71,12 @@ public sealed partial class MainPage : Page
         // here to load the home page.
         NavView_Navigate("apps", new EntranceNavigationTransitionInfo());
 
+        AppContext.MainNavigationView = NavView;
+
         // Listen to the window directly so the app responds
         // to accelerator keys regardless of which element has focus.
         //Dispatcher.AcceleratorKeyActivated +=
         //    CoreDispatcher_AcceleratorKeyActivated;
-
-        //CoreWindow.PointerPressed += CoreWindow_PointerPressed;
-
-        //SystemNavigationManager.GetForCurrentView().BackRequested += System_BackRequested;
     }
 
     private void NavView_ItemInvoked(NavigationView sender,

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using LiteDB;
 using SteamWorkshopManager.Core;
@@ -32,6 +33,7 @@ public class WorkshopItemDatabase
     {
         _detailsCollection.Delete(new BsonValue(item.Id));
         _detailsCollection.Insert(new BsonValue(item.Id), item);
+        _db.Commit();
     }
 
     /// <summary>

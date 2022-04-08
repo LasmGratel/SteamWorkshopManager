@@ -24,8 +24,18 @@ namespace SteamWorkshopManager.UserControls
 
         public WorkshopItemGrid()
         {
+            PrimaryCommands = new List<ICommandBarElement>();
             this.InitializeComponent();
             ViewModel = new WorkshopItemGridViewModel();
+        }
+
+        public static readonly DependencyProperty PrimaryCommandsProperty = DependencyProperty.Register(
+            "PrimaryCommands", typeof(List<ICommandBarElement>), typeof(WorkshopItemGrid), new PropertyMetadata(default(List<ICommandBarElement>)));
+
+        public List<ICommandBarElement> PrimaryCommands
+        {
+            get { return (List<ICommandBarElement>) GetValue(PrimaryCommandsProperty); }
+            set { SetValue(PrimaryCommandsProperty, value); }
         }
 
         private void RefreshItems_OnClick(object sender, RoutedEventArgs e)
@@ -160,14 +170,6 @@ namespace SteamWorkshopManager.UserControls
         private void WorkshopItem_OnEffectiveViewportChanged(FrameworkElement sender, EffectiveViewportChangedEventArgs args)
         {
             var model = sender.GetDataContext<WorkshopItemViewModel>();
-            if (ViewModel.ItemsView.Count > 0 && Equals(model, ViewModel.ItemsView.Last()))
-            {
-                var y = args.BringIntoViewDistanceY;
-                if (y <= sender.ActualHeight * 2)
-                {
-                    _ = ViewModel.LoadMoreItemsAsync(50);
-                }
-            }
         }
 
         public List<SortOptions> SortOptionsList => new(Enum.GetValues<SortOptions>());
@@ -181,6 +183,11 @@ namespace SteamWorkshopManager.UserControls
                 ViewModel.SearchContext.AppId = ViewModel.Workshop.AppId;
                 _ = ViewModel.ResetEngineAndFillAsync(new SearchEngine(AppContext.Client, null, ViewModel.SearchContext));
             }
+        }
+
+        private void WorkshopItemGrid_OnLoaded(object sender, RoutedEventArgs e)
+        {
+            CommandBar.PrimaryCommands.AddRange(PrimaryCommands);
         }
     }
 }

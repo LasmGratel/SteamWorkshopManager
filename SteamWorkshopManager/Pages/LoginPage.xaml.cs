@@ -27,16 +27,11 @@ public sealed partial class LoginPage : Page
     }
 
 
-
-    private async Task CoreWebView2OnDOMContentLoaded(CoreWebView2 sender, CoreWebView2DOMContentLoadedEventArgs args)
-    {
-    }
-
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
         var proxy = App.Instance.AppHost.Services.GetRequiredService<IHttpProxyService>();
-        Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", $"--proxy-server=127.0.0.1:{proxy.ProxyPort} --ignore-certificate-errors");
+        Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", $"--proxy-server=127.0.0.1:{App.Instance.AppHost.Services.GetRequiredService<IHttpProxyService>().ProxyPort} --ignore-certificate-errors");
         /*
         var options = new OidcClientOptions
         {
@@ -75,10 +70,6 @@ public sealed partial class LoginPage : Page
 
     private void LoginWebView_OnNavigationStarting(WebView2 sender, CoreWebView2NavigationStartingEventArgs args)
     {
-        LoginWebView.CoreWebView2.DOMContentLoaded += (view2, args) =>
-        {
-            _ = CoreWebView2OnDOMContentLoaded(view2, args);
-        };
         LoginWebView.CoreWebView2.WebResourceResponseReceived += (view2, eventArgs) =>
         {
             var header = eventArgs.Request.Headers;

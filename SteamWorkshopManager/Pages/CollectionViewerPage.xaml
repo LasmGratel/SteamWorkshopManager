@@ -6,12 +6,18 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
-    xmlns:userControls="using:SteamWorkshopManager.UserControls"
+    xmlns:userControls="using:SteamWorkshopManager.UserControls" 
+    xmlns:ui="using:SteamWorkshopManager.Util.UI"
     mc:Ignorable="d"
     
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <controls:DockPanel>
-        <userControls:WorkshopItemGrid x:Name="WorkshopItemGrid"></userControls:WorkshopItemGrid>
+        <userControls:WorkshopItemGrid x:Name="WorkshopItemGrid">
+            <userControls:WorkshopItemGrid.PrimaryCommands>
+
+                <AppBarButton Icon="{ui:FontIcon Glyph=SelectAllE8B3}" Label="Refresh Items" Click="SelectAll_OnClick"></AppBarButton>
+            </userControls:WorkshopItemGrid.PrimaryCommands>
+        </userControls:WorkshopItemGrid>
     </controls:DockPanel>
 </Page>
