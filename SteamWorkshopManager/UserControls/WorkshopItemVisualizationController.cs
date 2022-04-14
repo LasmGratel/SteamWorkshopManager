@@ -50,6 +50,7 @@ public class WorkshopItemVisualizationController
     public void Dispose()
     {
         _visualizer.DisposeCurrent();
+        FetchEngine?.Cancel();
         FetchEngine = null;
     }
 }

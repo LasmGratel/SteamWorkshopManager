@@ -11,17 +11,7 @@ namespace SteamWorkshopManager.Pages;
 /// </summary>
 public sealed partial class SettingsPage : Page
 {
-    public string? Cookie
-    {
-        get => AppContext.Settings.Cookie;
-        set => AppContext.Settings.Cookie = value;
-    }
-
-    public string? UserLink
-    {
-        get => AppContext.Settings.UserLink;
-        set => AppContext.Settings.UserLink = value;
-    }
+    public AppSettings Settings = AppContext.Settings;
 
     public SettingsPage()
     {

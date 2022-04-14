@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
+using Windows.Graphics.Imaging;
 using Windows.Storage;
 using Windows.Storage.Streams;
 using SteamWorkshopManager.Client.Engine;
@@ -14,11 +15,30 @@ namespace SteamWorkshopManager.Util;
 
 public static class IOHelper
 {
+    public static async Task<SoftwareBitmap> ReadImageAsync(string path)
+    {
+        await using var file = File.OpenRead(AppKnownFolders.Local.Resolve(path));
+        var decoder = await BitmapDecoder.CreateAsync(file.AsRandomAccessStream());
+        return await decoder.GetSoftwareBitmapAsync();
+    }
+
+    public static async Task WriteAsync(this SoftwareBitmap bitmap, string path)
+    {
+        await using var file = File.OpenWrite(AppKnownFolders.Local.Resolve(path));
+        var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.JpegEncoderId, file.AsRandomAccessStream());
+        encoder.SetSoftwareBitmap(bitmap);
+        await encoder.FlushAsync();
+    }
+
     public static async Task ClearDirectoryAsync(this StorageFolder dir)
     {
         await Task.WhenAll((await dir.GetItemsAsync()).Select(f => f.DeleteAsync().AsTask()));
     }
 
+    public static async Task<string> ReadStringAsync(this StorageFile storageFile)
+    {
+        return Encoding.UTF8.GetString((await storageFile.ReadBytesAsync().ConfigureAwait(false))!);
+    }
 
     public static IAsyncAction WriteStringAsync(this StorageFile storageFile, string str)
     {

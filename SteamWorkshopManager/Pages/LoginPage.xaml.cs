@@ -30,8 +30,7 @@ public sealed partial class LoginPage : Page
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
         base.OnNavigatedTo(e);
-        var proxy = App.Instance.AppHost.Services.GetRequiredService<IHttpProxyService>();
-        Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", $"--proxy-server=127.0.0.1:{App.Instance.AppHost.Services.GetRequiredService<IHttpProxyService>().ProxyPort} --ignore-certificate-errors");
+        Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", $"--proxy-server={AppContext.Settings.Proxy} --ignore-certificate-errors");
         /*
         var options = new OidcClientOptions
         {

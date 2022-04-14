@@ -24,7 +24,7 @@ public sealed partial class MainWindow : Window
     private async void RootFrame_OnLoaded(object sender, RoutedEventArgs e)
     {
         var proxy = App.Instance.AppHost.Services.GetRequiredService<IHttpProxyService>();
-        proxy.ProxyDNS = IPAddress.Parse(DnsAnalysisService.PrimaryDNS_Dnspod);
+        proxy.ProxyDNS = IPAddress.Parse(DnsAnalysisService.PrimaryDNS_Cloudflare);
         proxy.ProxyDomains = new[]
         {
             new AccelerateProjectDTO

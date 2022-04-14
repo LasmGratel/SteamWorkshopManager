@@ -18,6 +18,8 @@
     <UserControl.Resources>
         <converters1:BoolToObjectConverter x:Key="BoolToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed"/>
         <converters1:BoolToObjectConverter x:Key="BoolToVisibilityInverseConverter" TrueValue="Collapsed" FalseValue="Visible"/>
+
+        <ui:IsNotNullToBoolConverter x:Key="IsNotNull" />
     </UserControl.Resources>
 
     <SplitView x:Name="SplitView" IsPaneOpen="False" OpenPaneLength="260" PanePlacement="Right" DisplayMode="Overlay" PaneBackground="{ThemeResource SystemBaseLowColor}">
@@ -41,6 +43,19 @@
             
         </SplitView.Pane>
         <controls:DockPanel>
+            <InfoBar
+                Margin="20, 0, 0, 0"
+                IsOpen="{x:Bind ViewModel.ShowInfo, Mode=TwoWay}"
+                Severity="{x:Bind ViewModel.Severity, Mode=OneWay}"
+                Title="{x:Bind ViewModel.InfoTitle, Mode=OneWay}"
+                Message="{x:Bind ViewModel.InfoMessage, Mode=OneWay}"
+                IsClosable="{x:Bind ViewModel.InfoCompleted, Mode=OneWay}"
+                controls:DockPanel.Dock="Top">
+                <StackPanel>
+                    <ProgressBar Maximum="{x:Bind ViewModel.InfoMaxProgress, Mode=OneWay}" Value="{x:Bind ViewModel.InfoProgress, Mode=OneWay}"></ProgressBar>
+                </StackPanel>
+            </InfoBar>
+
             <CommandBar x:Name="CommandBar" x:FieldModifier="public" controls:DockPanel.Dock="Top" DefaultLabelPosition="Right" VerticalAlignment="Center" VerticalContentAlignment="Center">
                 <CommandBar.Content>
                     <StackPanel Orientation="Horizontal">
@@ -50,12 +65,62 @@
                             Margin="20, 0, 0, 0"
                             Width="250"
                             PlaceholderText="Search an item..." SuggestionChosen="SearchBox_OnSuggestionChosen" QuerySubmitted="SearchBox_OnQuerySubmitted"></AutoSuggestBox>
-                        <ComboBox SelectionChanged="SortOptions_OnSelectionChanged" ItemsSource="{x:Bind SortOptionsList}" SelectedItem="{x:Bind ViewModel.SearchContext.SortOptions, Mode=TwoWay}"></ComboBox>
+                        <ComboBox SelectionChanged="SortOptions_OnSelectionChanged"
+                                  Margin="10, 0, 0, 0"
+                                  ToolTipService.ToolTip="Change sort option"
+                                  ItemsSource="{x:Bind SortOptionsList}" SelectedItem="{x:Bind ViewModel.SearchContext.SortOptions, Mode=TwoWay}"></ComboBox>
                     </StackPanel>
                 </CommandBar.Content>
                 <CommandBar.PrimaryCommands>
-                    <AppBarButton Icon="{ui:FontIcon Glyph=RefreshE72C}" Label="Refresh Items" Click="RefreshItems_OnClick"></AppBarButton>
-                    <AppBarButton Icon="{ui:FontIcon Glyph=SubscriptionAddED0E}" IsEnabled="{x:Bind ViewModel.HasItemSelected, Mode=OneWay}" Label="Subscribe All" Click="SubscribeItems_OnClick"></AppBarButton>
+                    <AppBarButton 
+                        x:Name="AddToCollectionButton"
+                        AllowFocusOnInteraction="True" Icon="{ui:FontIcon Glyph=SubscriptionAddED0E}" IsEnabled="{x:Bind ViewModel.HasItemSelected, Mode=OneWay}" Label="Add to collection">
+                        <AppBarButton.Flyout>
+                            <Flyout Placement="Bottom">
+                                <Grid RowSpacing="10" Width="200">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                        <RowDefinition/>
+                                    </Grid.RowDefinitions>
+                                    <TextBlock HorizontalTextAlignment="Center" FontWeight="semibold">
+                                        Select a collection
+                                    </TextBlock>
+                                    <Grid Grid.Row="1" ColumnSpacing="2" HorizontalAlignment="Stretch" Width="200">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition Width="0.35*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <ComboBox
+                                            AllowFocusOnInteraction="True"
+                                            Loaded="SelectCollection_OnLoaded"
+                                            x:Name="SelectCollection"
+                                            HorizontalAlignment="Stretch"
+                                            Tapped="SelectCollection_OnTapped"
+                                            SelectedItem="{x:Bind ViewModel.SelectedCollection, Mode=TwoWay}"
+                                            ItemsSource="{x:Bind ViewModel.Collections, Mode=OneWay}"
+                                            SelectionChanged="SelectCollection_SelectionChanged">
+                                        </ComboBox>
+                                        <Button Grid.Column="1" Click="CreateNewCollection_OnClick">New</Button>
+                                    </Grid>
+                                    <Grid Grid.Row="2" ColumnSpacing="5" Width="200" HorizontalAlignment="Stretch">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition/>
+                                            <ColumnDefinition/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button HorizontalAlignment="Stretch" IsEnabled="{x:Bind ViewModel.SelectedCollection, Converter={StaticResource IsNotNull}, Mode=OneWay}" Click="AddToCollection_OnClick">OK</Button>
+                                        <Button Grid.Column="1" HorizontalAlignment="Stretch">Cancel</Button>
+                                    </Grid>
+                                </Grid>
+                                <Flyout.FlyoutPresenterStyle>
+                                    <Style TargetType="FlyoutPresenter">
+                                        <Setter Property="MinWidth" Value="200" />
+                                    </Style>
+                                </Flyout.FlyoutPresenterStyle>
+                            </Flyout>
+                        </AppBarButton.Flyout>
+                    </AppBarButton>
+                    <AppBarButton Icon="{ui:FontIcon Glyph=AddE710}" IsEnabled="{x:Bind ViewModel.HasItemSelected, Mode=OneWay}" Label="Subscribe All" Click="SubscribeItems_OnClick"></AppBarButton>
                     <AppBarButton Icon="{ui:FontIcon Glyph=FavoriteStarE734}" IsEnabled="{x:Bind ViewModel.HasItemSelected, Mode=OneWay}" Label="Favorite All" Click="FavoriteItems_OnClick"></AppBarButton>
                     <AppBarButton x:Name="UnselectAll" IsEnabled="{x:Bind ViewModel.HasItemSelected, Mode=OneWay}" Icon="{ui:FontIcon Glyph=ClearE894}" Label="Unselect All" Click="UnselectAll_OnClick"></AppBarButton>
                     <AppBarButton Icon="{ui:FontIcon Glyph=TagE8EC}" Label="Tags" Click="ToggleTags_OnClick"></AppBarButton>
@@ -104,6 +169,7 @@
                                             HorizontalAlignment="Right"
                                             HorizontalContentAlignment="Center"
                                             VerticalContentAlignment="Center"
+                                            ToolTipService.ToolTip="Add to collection"
                                             Content="{ui:FontIcon Glyph=SubscriptionAddED0E}">
                                         </ContentPresenter>
                                         <Grid Width="20" Height="20">
@@ -112,6 +178,7 @@
                                                 HorizontalContentAlignment="Center"
                                                 VerticalContentAlignment="Center"
                                                 Tapped="Favorite_Tapped"
+                                                ToolTipService.ToolTip="Favorite"
                                                 Visibility="{Binding Path=Favorited, Converter={StaticResource BoolToVisibilityInverseConverter}}"
                                                 Content="{ui:FontIcon Glyph=FavoriteStarE734}">
                                             </ContentPresenter>
@@ -121,10 +188,11 @@
                                                 VerticalContentAlignment="Center"
                                                 Tapped="Favorite_Tapped"
                                                 Visibility="{x:Bind Favorited, Mode=OneWay}"
+                                                ToolTipService.ToolTip="Unfavorite"
                                                 Content="{ui:FontIcon Glyph=FavoriteStarFillE735}">
                                             </ContentPresenter>
                                         </Grid>
-                                        
+
                                         <CheckBox
                                             Tapped="CheckBox_Tapped"
                                             MaxWidth="20"
@@ -138,17 +206,13 @@
                                         </CheckBox>
                                     </StackPanel>
 
-                                    <StackPanel
-                                        Spacing="5"
-                                        VerticalAlignment="Bottom"
-                                        controls:DockPanel.Dock="Bottom"
-                                        Margin="15, 0, 0, 5">
-                                        <TextBlock Text="{x:Bind Item.Name}" Foreground="White"></TextBlock>
-                                        <TextBlock Text="{x:Bind Item.Id}" FontWeight="Light" Foreground="White"></TextBlock>
-                                        <controls:DockPanel>
-                                            <ToggleButton controls:DockPanel.Dock="Right" x:Name="SubscribeButton" Tapped="Subscribe_OnTapped" Content="{x:Bind GetSubscribeButtonContent(Subscribed), Mode=OneWay}" IsChecked="{x:Bind Subscribed, Mode=OneWay}" Background="White" Foreground="Black" HorizontalAlignment="Right"></ToggleButton>
-                                        </controls:DockPanel>
-                                    </StackPanel>
+                                    <controls:DockPanel Margin="15, 0, 10, 10" Dock="Bottom" VerticalAlignment="Bottom">
+                                        <StackPanel Spacing="5" controls:DockPanel.Dock="Left">
+                                            <TextBlock Text="{x:Bind Item.Name}" Foreground="White"></TextBlock>
+                                            <TextBlock Text="{x:Bind Item.Id}" FontWeight="Light" Foreground="White"></TextBlock>
+                                        </StackPanel>
+                                        <ToggleButton controls:DockPanel.Dock="Right" x:Name="SubscribeButton" Tapped="Subscribe_OnTapped" Content="{x:Bind GetSubscribeButtonContent(Subscribed), Mode=OneWay}" IsChecked="{x:Bind Subscribed, Mode=OneWay}" Background="White" Foreground="Black" HorizontalAlignment="Right"></ToggleButton>
+                                    </controls:DockPanel>
                                 </controls:DockPanel>
                             </Border>
 
@@ -156,78 +220,6 @@
                     </DataTemplate>
                 </GridView.ItemTemplate>
             </controls:AdaptiveGridView>
-            <ContentDialog x:Name="ItemDialog" Visibility="Collapsed" HorizontalAlignment="Stretch">
-                <ContentDialog.ContentTemplate>
-                    <DataTemplate x:DataType="model:WorkshopItemDetailsViewModel">
-                        <ScrollViewer MaxHeight="320" Width="480">
-                            <StackPanel>
-                                <StackPanel>
-                                    <ListView x:Name="ImageList"
-                                              ScrollViewer.HorizontalScrollBarVisibility="Visible"
-                                              ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                                              ScrollViewer.HorizontalScrollMode="Enabled"
-                                              ScrollViewer.VerticalScrollMode="Disabled"
-                                              ItemsSource="{x:Bind Item.ScreenshotUrls}"
-                                              IsItemClickEnabled="True">
-                                        <ListView.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <ItemsStackPanel Orientation="Horizontal"/>
-                                            </ItemsPanelTemplate>
-                                        </ListView.ItemsPanel>
-                                        <ListView.ItemTemplate>
-                                            <DataTemplate x:DataType="system:String">
-                                                <RelativePanel Margin="0,10,0,20">
-                                                    <Image MaxWidth="300" MaxHeight="300" Stretch="UniformToFill" Source="{x:Bind Mode=OneWay}"/>
-                                                </RelativePanel>
-                                            </DataTemplate>
-                                        </ListView.ItemTemplate>
-                                    </ListView>
-                                    <Image Stretch="UniformToFill" Source="{x:Bind Item.ImageUrl, Mode=OneWay}"></Image>
-                                    <controls:DockPanel>
-                                        <StackPanel
-                                            controls:DockPanel.Dock="Top"
-                                            Spacing="10"
-                                            Height="20"
-                                            HorizontalAlignment="Right"
-                                            Orientation="Horizontal">
-                                            <ContentPresenter
-                                                Width="20"
-                                                HorizontalAlignment="Right"
-                                                HorizontalContentAlignment="Center"
-                                                VerticalContentAlignment="Center"
-                                                Content="{ui:FontIcon Glyph=SubscriptionAddED0E}">
-                                            </ContentPresenter>
-                                            <ContentPresenter
-                                                Width="20"
-                                                HorizontalAlignment="Right"
-                                                HorizontalContentAlignment="Center"
-                                                VerticalContentAlignment="Center"
-                                                Content="{ui:FontIcon Glyph=HeartEB51, FontSize=18}">
-                                            </ContentPresenter>
-                                        </StackPanel>
-
-                                        <StackPanel
-                                            Spacing="5"
-                                            VerticalAlignment="Bottom"
-                                            controls:DockPanel.Dock="Bottom"
-                                            Margin="15, 0, 0, 5">
-                                            <TextBlock Text="{x:Bind Item.Name}" Foreground="White"></TextBlock>
-                                            <TextBlock Text="{x:Bind Item.Id}" FontWeight="Light" Foreground="White"></TextBlock>
-                                            <controls:DockPanel>
-                                                <RatingControl HorizontalAlignment="Left" IsReadOnly="True" PlaceholderValue="{x:Bind Item.Stars}"></RatingControl>
-                                                <HyperlinkButton Content="Open in Browser" NavigateUri="{x:Bind Item.Url}" HorizontalAlignment="Right"></HyperlinkButton>
-                                            </controls:DockPanel>
-                                        </StackPanel>
-                                    </controls:DockPanel>
-                                </StackPanel>
-                                <StackPanel controls:DockPanel.Dock="Bottom">
-                                    <controls:MarkdownTextBlock TextWrapping="WrapWholeWords" Text="{x:Bind DescriptionMarkdown, Mode=OneWay}" LinkClicked="MarkdownTextBlock_OnLinkClicked"></controls:MarkdownTextBlock>
-                                </StackPanel>
-                            </StackPanel>
-                        </ScrollViewer>
-                    </DataTemplate>
-                </ContentDialog.ContentTemplate>
-            </ContentDialog>
         </controls:DockPanel>
     </SplitView>
 </UserControl>

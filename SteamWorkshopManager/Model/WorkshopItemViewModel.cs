@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Windows.Graphics.Imaging;
 using Windows.UI.Text;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml.Controls;
@@ -47,8 +48,11 @@ public partial class WorkshopItemViewModel : ObservableObject, IDisposable
 
     public WorkshopItem Item { get; }
 
+    public SoftwareBitmap? ThumbnailBitmap;
+
     public void Dispose()
     {
+        ThumbnailBitmap?.Dispose();
     }
 
     public string GetSubscribeButtonContent(bool subscribed)

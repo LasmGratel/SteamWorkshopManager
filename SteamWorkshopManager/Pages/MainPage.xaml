@@ -2,35 +2,38 @@
     x:Class="SteamWorkshopManager.Pages.MainPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:SteamWorkshopManager.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:navigation="using:SteamWorkshopManager.Model.Navigation"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     mc:Ignorable="d"
+    Loaded="MainPage_OnLoaded"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
         <NavigationView x:Name="NavView"
-                         Loaded="NavView_Loaded"
-                         ItemInvoked="NavView_ItemInvoked"
-                         BackRequested="NavView_BackRequested"
-                         AlwaysShowHeader="False"
-                         PaneDisplayMode="Auto">
-            <NavigationView.MenuItems>
-                <NavigationViewItem Tag="home" Icon="Home" Content="Home"/>
-                <NavigationViewItemSeparator/>
-                <NavigationViewItemHeader x:Name="MainPagesHeader"
-                                           Content="Main pages"/>
-                <NavigationViewItem Tag="apps" Content="Apps">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE7FC;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-                <NavigationViewItem Tag="collections" Content="Collections">
-                    <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xEA37;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-            </NavigationView.MenuItems>
+                        Loaded="NavView_Loaded"
+                        BackRequested="NavView_BackRequested"
+                        AlwaysShowHeader="False"
+                        PaneDisplayMode="Auto"
+                        IsSettingsVisible="False"
+                        MenuItemsSource="{x:Bind MainMenuItems, Mode=OneWay}"
+                        FooterMenuItemsSource="{x:Bind FooterMenuItems, Mode=OneWay}">
+            <NavigationView.MenuItemTemplate>
+                <DataTemplate x:DataType="navigation:NavigationContext">
+                    <NavigationViewItem Tag="{x:Bind Tag}" DataContext="{x:Bind}" PointerPressed="NavigationViewItem_MiddleClicked" Loaded="NavViewItem_Loaded">
+                        <NavigationViewItem.Icon>
+                            <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="{x:Bind IconGlyph}"/>
+                        </NavigationViewItem.Icon>
+                        <controls:DockPanel>
+                            <TextBlock Text="{x:Bind Content}" HorizontalTextAlignment="Center" VerticalAlignment="Center" controls:DockPanel.Dock="Left" />
+                            <Button Visibility="{x:Bind CanClose}" Foreground="White" BorderThickness="0" Style="{ThemeResource TextBlockButtonStyle}" controls:DockPanel.Dock="Right" HorizontalAlignment="Right" Tapped="UIElement_OnTapped">
+                                <FontIcon FontSize="14" FontFamily="Segoe MDL2 Assets" Glyph="&#xE711;"/>
+                            </Button>
+                        </controls:DockPanel>
+                    </NavigationViewItem>
+                </DataTemplate>
+            </NavigationView.MenuItemTemplate>
 
             <NavigationView.AutoSuggestBox>
                 <!-- See AutoSuggestBox documentation for
@@ -41,23 +44,5 @@
             <Frame x:Name="ContentFrame" x:FieldModifier="public" Padding="12,0,12,24" IsTabStop="True"
                        NavigationFailed="ContentFrame_NavigationFailed"/>
         </NavigationView>
-<!--
-        <VisualStateManager.VisualStateGroups>
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger
-                        MinWindowWidth="{x:Bind NavViewCompactModeThresholdWidth}"/>
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="NavView.PaneDisplayMode" Value="Top"/>
-                        <Setter Target="NavViewSearchBox.Width" Value="200"/>
-                        <Setter Target="MainPagesHeader.Visibility" Value="Collapsed"/>
-                        <Setter Target="ContentFrame.Padding" Value="24,0,24,24"/>
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
-        -->
     </Grid>
 </Page>

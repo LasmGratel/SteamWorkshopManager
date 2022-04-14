@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.WinUI.UI;
 using Microsoft.Toolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Xaml.Controls;
 using SteamWorkshopManager.Client.Engine;
 using SteamWorkshopManager.Core;
 using SteamWorkshopManager.Database;
@@ -49,6 +50,33 @@ public partial class WorkshopItemGridViewModel : ObservableObject, IDisposable, 
     [ObservableProperty]
     private bool _isLoading;
 
+    [ObservableProperty]
+    private string _infoTitle;
+
+    [ObservableProperty]
+    private string _infoMessage;
+
+    [ObservableProperty]
+    private int _infoProgress;
+
+    [ObservableProperty]
+    private int _infoMaxProgress;
+
+    [ObservableProperty]
+    private bool _infoCompleted;
+
+    [ObservableProperty]
+    private bool _showInfo;
+
+    [ObservableProperty]
+    private InfoBarSeverity _severity;
+
+    [ObservableProperty]
+    private ObservableCollection<WorkshopCollection> _collections;
+
+    [ObservableProperty]
+    private WorkshopCollection? _selectedCollection;
+
     public GeneralizedSuffixTree SearchTree = new();
 
     public void DisposeCurrent()
@@ -62,6 +90,7 @@ public partial class WorkshopItemGridViewModel : ObservableObject, IDisposable, 
         SelectedViewModels.Clear();
         ItemsView.Clear();
         _viewModels.Clear();
+        Severity = InfoBarSeverity.Informational;
     }
 
     public ObservableCollection<WorkshopItemViewModel> ViewModels
@@ -90,6 +119,7 @@ public partial class WorkshopItemGridViewModel : ObservableObject, IDisposable, 
         _controller = new WorkshopItemVisualizationController(this);
         ItemsView = new AdvancedCollectionView(ViewModels);
         Tags = new ObservableCollection<WorkshopItemTagViewModel>();
+        Collections = new ObservableCollection<WorkshopCollection>();
     }
 
     public void ClearSelection()

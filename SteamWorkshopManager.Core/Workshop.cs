@@ -4,6 +4,9 @@ namespace SteamWorkshopManager.Core;
 
 public record Workshop
 {
+    public const int HeaderWidth = 460;
+    public const int HeaderHeight = 215;
+
     [BsonId(false)]
     public long AppId { get; set; }
 

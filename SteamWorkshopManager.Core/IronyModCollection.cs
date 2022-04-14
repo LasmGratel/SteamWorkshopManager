@@ -27,7 +27,7 @@ public record IronyModCollection
         var items = Mods
             .Where(x => x.StartsWith("mod/ugc_"))
             .Select(x => long.Parse(x[8..^4]))
-            .ToList();
+            .ToHashSet();
         return new WorkshopCollection
         {
             AppId = appId,

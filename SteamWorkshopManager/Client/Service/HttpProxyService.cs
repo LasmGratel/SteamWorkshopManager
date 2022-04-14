@@ -86,7 +86,6 @@ public sealed class HttpProxyService : IHttpProxyService
         {
             Console.Error.WriteLine(exception);
         };
-
         proxyServer.EnableHttp2 = false;
         proxyServer.EnableConnectionPool = true;
         proxyServer.CheckCertificateRevocation = X509RevocationMode.NoCheck;
@@ -163,6 +162,7 @@ public sealed class HttpProxyService : IHttpProxyService
     {
         if (isDomain || !IPAddress.TryParse(url, out var ip))
         {
+            if (url == "partner.steamgames.com") return IPAddress.Parse("184.28.13.50");
             if (proxyDns != null)
             {
                 ip = (await DnsAnalysis.AnalysisDomainIpByCustomDns(url, new[] { proxyDns }, IsIpv6Support))?.First();
@@ -532,11 +532,12 @@ public sealed class HttpProxyService : IHttpProxyService
 
             proxyServer.Start();
 
-            // TODO Set Proxy
+
+            proxyServer.SetAsSystemHttpProxy(explicitProxyEndPoint);
+            proxyServer.SetAsSystemHttpsProxy(explicitProxyEndPoint);
         }
         catch (Exception ex)
         {
-            //TODO Log.Error(TAG, ex, nameof(StartProxy));
             return false;
         }
 

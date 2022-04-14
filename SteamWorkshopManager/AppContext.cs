@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Controls;
 using SteamWorkshopManager.Client.Service;
 using SteamWorkshopManager.Core;
 using SteamWorkshopManager.Database;
+using SteamWorkshopManager.Model.Navigation;
 using SteamWorkshopManager.Util;
 
 namespace SteamWorkshopManager;
@@ -19,14 +20,14 @@ public static partial class AppContext
     public static readonly ApplicationDataContainer SessionContainer;
     public static MainWindow MainWindow;
 
-    public static NavigationView? MainNavigationView;
+    public static NavigationController MainNavigationController;
 
     public static SteamWorkshopClient Client => new SteamWorkshopClient(
         Settings.Cookie,
         Settings.UserLink,
         new HttpClientHandler
         {//
-            Proxy = new WebProxy($"http://127.0.0.1:{App.Instance.AppHost.Services.GetRequiredService<IHttpProxyService>().ProxyPort}"),
+            Proxy = new WebProxy(Settings.Proxy),
             UseCookies = false
         });
 

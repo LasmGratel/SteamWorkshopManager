@@ -1,13 +1,17 @@
-﻿using SteamWorkshopManager.Core;
+﻿using System;
+using System.IO;
+using System.Threading.Tasks;
+using Windows.Graphics.Imaging;
+using SteamWorkshopManager.Core;
 
 namespace SteamWorkshopManager.Client;
 
-public class WorkshopManagerClient
+public static class WorkshopManagerClient
 {
-    public SteamWorkshopClient Client { get; set; }
-
-    public WorkshopManagerClient(SteamWorkshopClient client)
+    public static async Task<SoftwareBitmap> GetImageAsync(this SteamWorkshopClient client, string url)
     {
-        Client = client;
+        await using var stream = await client.Client.GetStreamAsync(url);
+        var decoder = await BitmapDecoder.CreateAsync(stream.AsRandomAccessStream());
+        return await decoder.GetSoftwareBitmapAsync();
     }
 }

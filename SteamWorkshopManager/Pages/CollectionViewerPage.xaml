@@ -16,8 +16,12 @@
         <userControls:WorkshopItemGrid x:Name="WorkshopItemGrid">
             <userControls:WorkshopItemGrid.PrimaryCommands>
 
-                <AppBarButton Icon="{ui:FontIcon Glyph=SelectAllE8B3}" Label="Refresh Items" Click="SelectAll_OnClick"></AppBarButton>
+                <AppBarButton Icon="{ui:FontIcon Glyph=SelectAllE8B3}" Label="Select All" Click="SelectAll_OnClick"></AppBarButton>
             </userControls:WorkshopItemGrid.PrimaryCommands>
+            <userControls:WorkshopItemGrid.SecondaryCommands>
+
+                <AppBarButton Icon="{ui:FontIcon Glyph=ExportEDE1}" Label="Export" Click="Export_OnClick"></AppBarButton>
+            </userControls:WorkshopItemGrid.SecondaryCommands>
         </userControls:WorkshopItemGrid>
     </controls:DockPanel>
 </Page>

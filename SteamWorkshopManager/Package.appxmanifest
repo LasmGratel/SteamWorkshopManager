@@ -9,7 +9,7 @@
   <Identity
     Name="718cf998-a3d3-421f-8225-e88d7ceb6d46"
     Publisher="CN=nanam"
-    Version="1.0.0.0" />
+    Version="1.0.1.0" />
 
   <Properties>
     <DisplayName>SteamWorkshopManager</DisplayName>

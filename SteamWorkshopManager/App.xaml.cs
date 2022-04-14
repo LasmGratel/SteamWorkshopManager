@@ -53,6 +53,9 @@ public partial class App : Application
         m_window.Activate();
 
 
+        if (string.IsNullOrEmpty(AppContext.Settings.Proxy))
+            AppContext.Settings.Proxy =
+                $"http://127.0.0.1:{App.Instance.AppHost.Services.GetRequiredService<IHttpProxyService>().ProxyPort}";
     }
 
     private Window m_window;

@@ -11,13 +11,14 @@
     <StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="5">
             <TextBlock Text="Cookie"></TextBlock>
-            <TextBox Text="{x:Bind Cookie, Mode=TwoWay}"></TextBox>
+            <TextBox Text="{x:Bind Settings.Cookie, Mode=TwoWay}"></TextBox>
         </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="5">
             <TextBlock Text="User Link"></TextBlock>
-            <TextBox Text="{x:Bind UserLink, Mode=TwoWay}"></TextBox>
+            <TextBox Text="{x:Bind Settings.UserLink, Mode=TwoWay}"></TextBox>
         </StackPanel>
         <Button Content="Refresh Login" Click="RefreshLogin_OnClick"></Button>
         <Button Content="Logout" Click="LogoutButton_OnClick"></Button>
+        <TextBox Text="{x:Bind Settings.Proxy, Mode=TwoWay}"></TextBox>
     </StackPanel>
 </Page>

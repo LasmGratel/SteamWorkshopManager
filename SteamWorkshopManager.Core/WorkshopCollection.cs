@@ -29,7 +29,24 @@ public record WorkshopCollection
 
     public List<string> Tags { get; set; } = new();
 
-    public List<long> Items { get; set; } = new();
+    public HashSet<long> Items { get; set; } = new();
 
     public bool IsOnline { get; set; }
+
+    public virtual bool Equals(WorkshopCollection? other)
+    {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Id == other.Id && Name == other.Name && AppId == other.AppId;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Id, Name, AppId);
+    }
+
+    public override string ToString()
+    {
+        return Name;
+    }
 }

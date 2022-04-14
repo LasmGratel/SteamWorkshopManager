@@ -149,7 +149,7 @@ public static class Parser
             let url = element.QuerySelector(".friendBlockLinkOverlay")?.GetAttribute("href") ?? ""
             let name = element.QuerySelector(".friendBlockContent")?.TextContent
             let avatar = element.QuerySelector(".playerAvatar")?.QuerySelector("img")?.GetAttribute("src") ?? ""
-            select new SteamProfile { Url = url, Name = name, Avatar = avatar }
+            select new SteamProfile { Url = url, Name = name[..name.IndexOf("		", StringComparison.Ordinal)], Avatar = avatar }
             ).ToList();
 
         _ = long.TryParse(doc.QuerySelector(".parentCollectionsNumOthers")?.QuerySelector("a")?.TextContent.Replace(" collections", "") ?? "0", out var collections);

@@ -67,7 +67,13 @@ public class SubscribedEngine : FetchEngine<WorkshopItem>
                         {
                             var parser = new HtmlParser();
                             var doc = await parser.ParseDocumentAsync(response);
-                            var pageNum = int.Parse(doc.QuerySelectorAll(".pagelink").Last().TextContent);
+                            var list = doc.QuerySelectorAll(".pagelink");
+                            if (list.Length == 0)
+                            {
+                                FetchEngine.EngineHandle.Complete();
+                                return false;
+                            }
+                            var pageNum = int.Parse(list.Last().TextContent);
                             MaxPage = pageNum;
                         }
 

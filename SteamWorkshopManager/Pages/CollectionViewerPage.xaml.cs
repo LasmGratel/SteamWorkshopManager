@@ -13,6 +13,9 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Storage;
+using Windows.Storage.Pickers;
+using Newtonsoft.Json;
 using SteamWorkshopManager.Client.Engine;
 using SteamWorkshopManager.Core;
 using SteamWorkshopManager.Model;
@@ -33,6 +36,8 @@ namespace SteamWorkshopManager.Pages
             this.InitializeComponent();
         }
 
+        private WorkshopCollection _collection;
+
         public async Task LoadItems(WorkshopCollection collection)
         {
             WorkshopItemGrid.ViewModel.ViewModels.AddRange(
@@ -50,6 +55,8 @@ namespace SteamWorkshopManager.Pages
         {
             if (e.Parameter is WorkshopCollection collection)
             {
+
+                _collection = collection;
                 WorkshopItemGrid.ViewModel.Workshop = AppContext.CacheDatabase.GetApp(collection.AppId).Result!;
                 _ = LoadItems(collection);
 
@@ -60,6 +67,21 @@ namespace SteamWorkshopManager.Pages
         {
             WorkshopItemGrid.ViewModel.ViewModels.ForEach(x => x.Selected = true);
             WorkshopItemGrid.ViewModel.SelectedViewModels.AddRange(WorkshopItemGrid.ViewModel.ViewModels);
+        }
+
+        private async void Export_OnClick(object sender, RoutedEventArgs e)
+        {
+            var picker = new FileSavePicker();
+            picker.FileTypeChoices.Add("JSON File", new List<string> {".json"});
+            picker.SuggestedFileName = _collection.Name + ".json";
+
+            // Pass in the current WinUI window and get its handle
+            // https://github.com/microsoft/WindowsAppSDK/issues/466
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(AppContext.MainWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+
+            var file = await picker.PickSaveFileAsync();
+            await file?.WriteStringAsync(JsonConvert.SerializeObject(_collection));
         }
     }
 }

@@ -35,6 +35,11 @@ public class CollectionDatabase
         return _collections.FindById(id);
     }
 
+    public IEnumerable<WorkshopCollection> GetCollectionsForApp(long appId)
+    {
+        return _collections.Find(Query.EQ("AppId", appId));
+    }
+
     public async Task<IEnumerable<WorkshopCollection>> GetAllCollections()
     {
         if (_collections.Count() == 0)
@@ -60,13 +65,6 @@ public class CollectionDatabase
 
     public void InsertOrUpdate(WorkshopCollection collection)
     {
-        if (_collections.Exists(x => x.Id == collection.Id))
-        {
-            _collections.Update(collection);
-        }
-        else
-        {
-            _collections.Insert(collection);
-        }
+        _collections.Upsert(collection);
     }
 }

@@ -13,7 +13,7 @@ public class SteamWorkshopClient
 
     public string UserProfileUrl { get; set; }
 
-    private readonly HttpClient _client;
+    public readonly HttpClient Client;
 
     public SteamWorkshopClient(string? cookie, string? userProfileUrl, HttpClientHandler? handler = null)
     {
@@ -27,17 +27,17 @@ public class SteamWorkshopClient
         handler ??= new HttpClientHandler();
         handler.UseCookies = false;
         handler.AutomaticDecompression = DecompressionMethods.GZip;
-        _client = new HttpClient(handler);
-        _client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.7113.93 Safari/537.36");
-        _client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
-        _client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml");
-        _client.DefaultRequestHeaders.Add("Accept-Charset", "UTF-8");
-        _client.DefaultRequestHeaders.Add("Accept-Language", "en-US");
+        Client = new HttpClient(handler);
+        Client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.7113.93 Safari/537.36");
+        Client.DefaultRequestHeaders.Add("Accept-Encoding", "gzip");
+        Client.DefaultRequestHeaders.Add("Accept", "text/html,application/xhtml+xml,application/xml");
+        Client.DefaultRequestHeaders.Add("Accept-Charset", "UTF-8");
+        Client.DefaultRequestHeaders.Add("Accept-Language", "en-US");
     }
 
     public async Task<WorkshopItemDetails> GetWorkshopItemDetailsAsync(long id)
     {
-        return await Parser.ParseFileDetails(await _client.GetStringAsync($"https://steamcommunity.com/sharedfiles/filedetails/?id={id}"));
+        return await Parser.ParseFileDetails(await Client.GetStringAsync($"https://steamcommunity.com/sharedfiles/filedetails/?id={id}"));
     }
 
     public async Task<HttpResponseMessage> SendRequest(string url)
@@ -45,7 +45,7 @@ public class SteamWorkshopClient
         var message = new HttpRequestMessage(HttpMethod.Get, url);
 
         message.Headers.TryAddWithoutValidation("Cookie", Cookie);
-        return await _client.SendAsync(message).ConfigureAwait(false);
+        return await Client.SendAsync(message).ConfigureAwait(false);
     }
 
     public async Task<string?> GetUserLink()
@@ -63,7 +63,7 @@ public class SteamWorkshopClient
         };
 
         message.Headers.TryAddWithoutValidation("Cookie", Cookie);
-        return await _client.SendAsync(message).ConfigureAwait(false);
+        return await Client.SendAsync(message).ConfigureAwait(false);
     }
 
     public async Task<string> GetBody(string url)
@@ -355,7 +355,7 @@ public class SteamWorkshopClient
                 int sortorder = child.sortorder;
                 items.Add((sortorder, long.Parse(id)));
             }
-            collection.Items = items.OrderBy(x => x.Item1).Select(x => x.Item2).ToList();
+            collection.Items = items.OrderBy(x => x.Item1).Select(x => x.Item2).ToHashSet();
             if (item.tags != null)
             {
                 foreach (var tag in item.tags)

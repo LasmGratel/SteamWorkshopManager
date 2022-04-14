@@ -17,7 +17,7 @@
             <controls:DockPanel>
                 <CommandBar controls:DockPanel.Dock="Top" DefaultLabelPosition="Right">
                     <CommandBar.PrimaryCommands>
-                        <AppBarButton Label="Clear all" Icon="{ui:FontIcon Glyph=ClearE894}"></AppBarButton>
+                        <AppBarButton Label="Create new" Icon="{ui:FontIcon Glyph=AddE710}" Click="CreateNewCollection_OnClick"></AppBarButton>
                         <AppBarButton Label="Import" Icon="{ui:FontIcon Glyph=ImportE8B5}" Click="Import_OnClicked"></AppBarButton>
                     </CommandBar.PrimaryCommands>
                 </CommandBar>

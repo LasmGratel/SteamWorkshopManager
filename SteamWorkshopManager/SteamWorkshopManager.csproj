@@ -20,9 +20,9 @@
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <AppxBundle>Never</AppxBundle>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
   </PropertyGroup>
   <ItemGroup>
-	  <FrameworkReference Update="Microsoft.Windows.SDK.NET.Ref" TargetingPackVersion="10.0.19041.22" RuntimeFrameworkVersion="10.0.19041.22" />
 	  <Content Remove="Assets\IronyModManager.png" />
   </ItemGroup>
   <ItemGroup>
@@ -30,6 +30,7 @@
     <None Remove="Pages\AppsPage.xaml" />
     <None Remove="Pages\CollectionsPage.xaml" />
     <None Remove="Pages\CollectionViewerPage.xaml" />
+    <None Remove="Pages\CreateNewCollectionDialog.xaml" />
     <None Remove="Pages\HomePage.xaml" />
     <None Remove="Pages\LoginPage.xaml" />
     <None Remove="Pages\MainPage.xaml" />
@@ -85,6 +86,11 @@
   <ItemGroup>
     <ProjectReference Include="..\SteamWorkshopManager.Core\SteamWorkshopManager.Core.csproj" />
     <ProjectReference Include="..\Titanium-Web-Proxy\src\Titanium.Web.Proxy\Titanium.Web.Proxy.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Pages\CreateNewCollectionDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Pages\CollectionViewerPage.xaml">

@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using SteamWorkshopManager.Client.Engine;
 using SteamWorkshopManager.Core;
+using SteamWorkshopManager.Model.Navigation;
 using SteamWorkshopManager.Util;
 using SteamWorkshopManager.Util.UI;
 using SuffixTreeSharp;
@@ -54,13 +55,15 @@ namespace SteamWorkshopManager.Pages
         private void App_OnTapped(object sender, TappedRoutedEventArgs e)
         {
             var context = sender.GetDataContext<Workshop>();
-            Frame.NavigateToType(typeof(HomePage), (new SearchEngine.SearchContext { AppId = context.AppId }, context), new FrameNavigationOptions());
+            AppContext.MainNavigationController.Navigate(NavigationContext.AppPage(context));
         }
 
 
-        private void AppsPage_OnLoaded(object sender, RoutedEventArgs e)
+        private async void AppsPage_OnLoaded(object sender, RoutedEventArgs e)
         {
             AppsCollection.Clear();
+            if (!AppContext.CacheDatabase.GetApps().Any())
+                await RefreshApps();
             AppsCollection.AddRange(AppContext.CacheDatabase.GetApps());
             for (var i = 0; i < AppsCollection.Count; i++)
             {

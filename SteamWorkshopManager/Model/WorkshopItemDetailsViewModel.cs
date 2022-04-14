@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,15 +11,25 @@ namespace SteamWorkshopManager.Model;
 
 public partial class WorkshopItemDetailsViewModel : ObservableObject
 {
-    private static ReverseMarkdown.Converter markdownConverter = new();
+    private static readonly ReverseMarkdown.Converter markdownConverter = new();
 
     [ObservableProperty]
-    private WorkshopItemDetails _item;
+    private WorkshopItemDetails? _item;
 
-    public WorkshopItemDetailsViewModel(WorkshopItemDetails item)
+    [ObservableProperty]
+    private string? _descriptionMarkdown;
+
+    public WorkshopItemDetailsViewModel()
     {
-        Item = item;
     }
 
-    public string DescriptionMarkdown => markdownConverter.Convert(Item.Description);
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+
+        if (e.PropertyName == "Item")
+        {
+            DescriptionMarkdown = markdownConverter.Convert(Item?.Description ?? "");
+        }
+    }
 }

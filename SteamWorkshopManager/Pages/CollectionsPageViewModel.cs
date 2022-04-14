@@ -36,4 +36,10 @@ public partial class CollectionsPageViewModel : ObservableObject
         await AppContext.CollectionDatabase.RefreshCollections();
         Collections = new ObservableCollection<WorkshopCollectionViewModel>((await AppContext.CollectionDatabase.GetAllCollections()).Select(x => new WorkshopCollectionViewModel(x)));
     }
+
+    public async Task ReloadFromDatabase()
+    {
+        Collections = new ObservableCollection<WorkshopCollectionViewModel>((await AppContext.CollectionDatabase.GetAllCollections()).Select(x => new WorkshopCollectionViewModel(x)));
+
+    }
 }
